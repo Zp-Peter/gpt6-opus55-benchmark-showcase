@@ -1,0 +1,80 @@
+[
+  {
+    "category": "pelican",
+    "model": "sol",
+    "path": "benchmarks/pelican/sol/index.html",
+    "note": "SVG 骑行动画"
+  },
+  {
+    "category": "pelican",
+    "model": "luna",
+    "path": "benchmarks/pelican/luna/index.html",
+    "note": "SVG 骑行动画"
+  },
+  {
+    "category": "pelican",
+    "model": "astra",
+    "path": "benchmarks/pelican/astra/index.html",
+    "note": "SVG 骑行动画"
+  },
+  {
+    "category": "pelican",
+    "model": "opus",
+    "path": "benchmarks/pelican/opus/index.html",
+    "note": "SVG 骑行动画"
+  },
+  {
+    "category": "websites",
+    "model": "sol",
+    "path": "benchmarks/websites/sol/index.html",
+    "note": "Atelier · Orbit · Signal · Chrome · Bloom"
+  },
+  {
+    "category": "websites",
+    "model": "opus",
+    "path": "benchmarks/websites/opus/index.html",
+    "note": "霓虹终端 · 字体工作室 · 玻璃 · 玩具箱 · 深空日志"
+  },
+  {
+    "category": "dinosaur",
+    "model": "astra",
+    "path": "benchmarks/dinosaur/astra/播放小城.html",
+    "note": "小城，大访客 · 时间轴动画"
+  },
+  {
+    "category": "dinosaur",
+    "model": "sol",
+    "path": "benchmarks/dinosaur/sol/dist/index.html",
+    "note": "恐龙进城与破坏动画"
+  },
+  {
+    "category": "dinosaur",
+    "model": "opus",
+    "path": "benchmarks/dinosaur/opus/dist/index.html",
+    "note": "恐龙进城与破坏动画"
+  },
+  {
+    "category": "promo",
+    "model": "sol",
+    "path": "benchmarks/promo/sol/index.html",
+    "note": "测评中的成品宣传视频；品牌文案为测试创作"
+  },
+  {
+    "category": "promo",
+    "model": "opus",
+    "path": "benchmarks/promo/opus/index.html",
+    "note": "测评中的成品宣传视频；品牌文案为测试创作"
+  },
+  {
+    "category": "matterhorn",
+    "model": "astra",
+    "path": "benchmarks/matterhorn/astra/马特洪峰.html",
+    "note": "实测地形数据与航拍纹理；可旋转与导出"
+  },
+  {
+    "category": "matterhorn",
+    "model": "opus",
+    "path": "benchmarks/matterhorn/opus/index.html",
+    "note": "程序化山体、湖面与光照控制"
+  }
+]

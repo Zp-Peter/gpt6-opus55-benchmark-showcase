@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Opus 5.5 Promo</title>
+<style>
+  html, body { margin: 0; background: #0e0d0c; height: 100%; }
+  body { display: flex; align-items: center; justify-content: center; }
+  canvas { width: 100vw; max-width: calc(100vh * 16 / 9); aspect-ratio: 16 / 9; display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+// 确定性动画：renderAt(t) 只依赖 t，方便逐帧导出。
+const W = 1920, H = 1080, DURATION = 38;
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+
+const C = {
+  bg: '#12110f', cream: '#f2eee4', dim: 'rgba(242,238,228,0.55)', faint: 'rgba(242,238,228,0.14)',
+  coral: '#d97757', coralHi: '#f0a07c', sand: '#c9b89a', mono: '#8fb9a8',
+};
+const SANS = '"PingFang SC", "Hiragino Sans GB", "Helvetica Neue", sans-serif';
+const SERIF = '"Songti SC", Georgia, serif';
+const MONO = 'Menlo, "SF Mono", monospace';
+
+// ---------- 工具 ----------
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const easeOut = k => 1 - Math.pow(1 - k, 3);
+const easeIn = k => k * k * k;
+const easeInOut = k => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const easeBack = k => { const c = 1.6; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+function win(t, a, b, fi = 0.5, fo = 0.5) { // 场景透明度窗口
+  if (t < a || t > b) return 0;
+  return Math.min(easeOut(prog(t, a, a + fi)), 1 - easeIn(prog(t, b - fo, b)));
+}
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+
+function text(str, x, y, { size = 48, font = SANS, weight = 400, color = C.cream, align = 'center', alpha = 1, spacing = 0, blur = 0 } = {}) {
+  if (alpha <= 0) return;
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  ctx.font = `${weight} ${size}px ${font}`;
+  ctx.fillStyle = color;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = align;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = spacing + 'px';
+  if (blur > 0) ctx.filter = `blur(${blur}px)`;
+  ctx.fillText(str, x, y);
+  ctx.restore();
+}
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function glow(x, y, r, color, a) {
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, color); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2); ctx.restore();
+}
+
+// ---------- 星芒标志（原创造型：12 道长短交替的锥形光线） ----------
+const RAYS = 12;
+function rayLen(i) { return i % 2 === 0 ? 1 : 0.62; }
+function drawSpark(cx, cy, R, { alpha = 1, rot = 0, grow = 1, color = C.coral } = {}) {
+  if (alpha <= 0) return;
+  ctx.save(); ctx.globalAlpha *= alpha; ctx.translate(cx, cy); ctx.rotate(rot);
+  ctx.fillStyle = color;
+  for (let i = 0; i < RAYS; i++) {
+    const k = clamp(grow * 1.4 - i * 0.03);
+    const len = R * rayLen(i) * easeOut(k);
+    if (len <= 0.5) continue;
+    const a = (i / RAYS) * Math.PI * 2;
+    const w = R * 0.085;
+    ctx.save(); ctx.rotate(a);
+    ctx.beginPath();
+    ctx.moveTo(0, -w); ctx.quadraticCurveTo(len * 0.55, -w * 0.55, len, 0);
+    ctx.quadraticCurveTo(len * 0.55, w * 0.55, 0, w); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(0, 0, R * 0.11 * easeOut(clamp(grow * 2)), 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+// ---------- 预计算：粒子 ----------
+const PN = 900;
+const particles = (() => {
+  const r = rng(7), out = [];
+  for (let i = 0; i < PN; i++) {
+    const ray = i % RAYS, a = (ray / RAYS) * Math.PI * 2;
+    const d = Math.pow(r(), 0.8) * rayLen(ray);
+    const off = (r() - 0.5) * 0.09 * (1 - d);
+    const ang = r() * Math.PI * 2, dist = 700 + r() * 900;
+    out.push({
+      sx: W / 2 + Math.cos(ang) * dist, sy: H / 2 + Math.sin(ang) * dist * 0.7,
+      tx: Math.cos(a) * d - Math.sin(a) * off, ty: Math.sin(a) * d + Math.cos(a) * off,
+      delay: r() * 0.9, size: 1.5 + r() * 3, tw: r() * 10,
+    });
+  }
+  return out;
+})();
+const dust = (() => { const r = rng(21), o = []; for (let i = 0; i < 140; i++) o.push({ x: r() * W, y: r() * H, s: 0.5 + r() * 1.6, v: 4 + r() * 14, p: r() * 6 }); return o; })();
+
+// ---------- 预计算：思维树 ----------
+const branches = (() => {
+  const r = rng(42), out = [];
+  function grow(x, y, ang, len, depth, t0) {
+    const x2 = x + Math.cos(ang) * len, y2 = y + Math.sin(ang) * len;
+    const dur = 0.55 - depth * 0.03;
+    out.push({ x, y, x2, y2, depth, t0, t1: t0 + dur });
+    if (depth >= 7) return;
+    const n = depth < 2 ? 2 : (r() < 0.3 ? 3 : 2);
+    for (let i = 0; i < n; i++) {
+      const spread = 0.38 + r() * 0.22;
+      const na = ang + (n === 2 ? (i ? spread : -spread) : (i - 1) * spread) + (r() - 0.5) * 0.18;
+      grow(x2, y2, na, len * (0.72 + r() * 0.1), depth + 1, t0 + dur * (0.75 + r() * 0.2));
+    }
+  }
+  grow(1260, 1000, -Math.PI / 2, 190, 0, 0);
+  return out;
+})();
+
+// ---------- 预计算：代码 ----------
+const CODE = [
+  ['k', 'async function '], ['f', 'ship'], ['p', '(task) {'], null,
+  ['c', '  // 1. 理解需求，拆成可验证的步骤'], null,
+  ['p', '  const plan = '], ['k', 'await '], ['f', 'think'], ['p', '(task.goal);'], null,
+  ['k', '  for '], ['p', '(const step '], ['k', 'of '], ['p', 'plan.steps) {'], null,
+  ['p', '    const result = '], ['k', 'await '], ['f', 'build'], ['p', '(step);'], null,
+  ['k', '    if '], ['p', '(!'], ['k', 'await '], ['f', 'verify'], ['p', '(result)) {'], null,
+  ['p', '      step = '], ['f', 'rethink'], ['p', '(step, result.errors);'], null,
+  ['p', '    }'], null,
+  ['p', '  }'], null,
+  ['k', '  return '], ['f', 'deliver'], ['p', '(plan, { tested: '], ['k', 'true'], ['p', ' });'], null,
+  ['p', '}'], null,
+];
+const codeLines = (() => { const L = [[]]; for (const seg of CODE) { if (seg === null) L.push([]); else L[L.length - 1].push(seg); } return L.filter(l => l.length); })();
+const codeTotal = codeLines.reduce((s, l) => s + l.reduce((a, g) => a + g[1].length, 0), 0);
+const codeColor = { k: C.coral, f: C.coralHi, p: C.cream, c: 'rgba(242,238,228,0.42)' };
+
+// ---------- 预计算：噪点 ----------
+const grain = (() => {
+  const tiles = [];
+  for (let k = 0; k < 4; k++) {
+    const g = document.createElement('canvas'); g.width = g.height = 256;
+    const gx = g.getContext('2d'), img = gx.createImageData(256, 256), r = rng(100 + k);
+    for (let i = 0; i < img.data.length; i += 4) { const v = r() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+    gx.putImageData(img, 0, 0); tiles.push(g);
+  }
+  return tiles;
+})();
+
+// ---------- 背景 ----------
+function background(t) {
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+  const gx = W / 2 + Math.sin(t * 0.21) * 260, gy = H / 2 + Math.cos(t * 0.17) * 120;
+  glow(gx, gy, 1100, 'rgba(217,119,87,0.16)', 1);
+  glow(W * 0.15, H * 0.9, 800, 'rgba(201,184,154,0.06)', 1);
+  for (const d of dust) {
+    const y = ((d.y - t * d.v) % H + H) % H;
+    ctx.globalAlpha = 0.18 + 0.12 * Math.sin(t * 1.3 + d.p);
+    ctx.fillStyle = C.sand; ctx.fillRect(d.x + Math.sin(t * 0.4 + d.p) * 20, y, d.s, d.s);
+  }
+  ctx.globalAlpha = 1;
+}
+function post(t) {
+  const v = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 1.05);
+  v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.62)');
+  ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.globalAlpha = 0.045; ctx.globalCompositeOperation = 'overlay';
+  ctx.fillStyle = ctx.createPattern(grain[Math.floor(t * 24) % 4], 'repeat'); ctx.fillRect(0, 0, W, H); ctx.restore();
+  // 电影遮幅
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, 54); ctx.fillRect(0, H - 54, W, 54);
+}
+
+// ---------- S1 开场：光标与一句话 0–5 ----------
+function typeLine(str, x, y, k, opts) {
+  const n = Math.floor(str.length * clamp(k));
+  text(str.slice(0, n), x, y, { ...opts, align: 'left' });
+  return n;
+}
+function scene1(t) {
+  const a = win(t, 0, 5.1, 0.4, 0.7); if (!a) return;
+  ctx.save(); ctx.globalAlpha = a;
+  const l1 = '每一个问题，', l2 = '都值得一次认真的思考。';
+  const size = 64; ctx.font = `300 ${size}px ${SANS}`;
+  const w2 = ctx.measureText(l2).width, x0 = W / 2 - w2 / 2;
+  const n1 = typeLine(l1, x0, H / 2 - 50, prog(t, 0.9, 1.9), { size, weight: 300 });
+  const n2 = typeLine(l2, x0, H / 2 + 50, prog(t, 2.2, 3.6), { size, weight: 300 });
+  // 光标
+  let cx = x0, cy = H / 2 - 50;
+  ctx.font = `300 ${size}px ${SANS}`;
+  if (t < 2.2) cx = x0 + ctx.measureText(l1.slice(0, n1)).width + 6;
+  else { cx = x0 + ctx.measureText(l2.slice(0, n2)).width + 6; cy = H / 2 + 50; }
+  if (Math.floor(t * 2.2) % 2 === 0 || (t > 0.9 && t < 3.6)) { ctx.fillStyle = C.coral; ctx.fillRect(cx, cy - 34, 5, 68); }
+  // “认真” 下划线
+  const u = easeOut(prog(t, 3.8, 4.4));
+  if (u > 0) {
+    const pre = ctx.measureText('都值得一次').width, wd = ctx.measureText('认真').width;
+    ctx.fillStyle = C.coral; ctx.fillRect(x0 + pre, H / 2 + 50 + 44, wd * u, 4);
+  }
+  ctx.restore();
+}
+
+// ---------- S2 粒子汇聚成星芒 + 标题 5–10.6 ----------
+function scene2(t) {
+  const a = win(t, 4.9, 10.6, 0.3, 0.6); if (!a) return;
+  ctx.save(); ctx.globalAlpha = a;
+  const move = easeInOut(prog(t, 7.6, 8.6));
+  const cx = W / 2, cy = lerp(H / 2, H / 2 - 150, move), R = lerp(260, 110, move);
+  const rot = t * 0.08;
+  const gather = prog(t, 5.0, 7.3), solid = easeOut(prog(t, 7.0, 7.6));
+  // 粒子
+  for (const p of particles) {
+    const k = easeInOut(clamp((gather - p.delay * 0.35) / 0.65));
+    const ca = Math.cos(rot), sa = Math.sin(rot);
+    const tx = cx + (p.tx * ca - p.ty * sa) * R, ty = cy + (p.tx * sa + p.ty * ca) * R;
+    const swirl = (1 - k) * 1.2;
+    const dx = p.sx - W / 2, dy = p.sy - H / 2;
+    const sx = W / 2 + dx * Math.cos(swirl) - dy * Math.sin(swirl), sy = H / 2 + dx * Math.sin(swirl) + dy * Math.cos(swirl);
+    const x = lerp(sx, tx, k), y = lerp(sy, ty, k);
+    ctx.globalAlpha = a * (0.5 + 0.5 * k) * (1 - solid * 0.85) * (0.7 + 0.3 * Math.sin(t * 6 + p.tw));
+    ctx.fillStyle = k > 0.9 ? C.coralHi : C.sand;
+    ctx.fillRect(x, y, p.size, p.size);
+  }
+  ctx.globalAlpha = a;
+  // 成形闪光
+  const flash = Math.exp(-Math.pow((t - 7.35) / 0.18, 2));
+  glow(cx, cy, R * 2.6, 'rgba(240,160,124,0.55)', solid * 0.6 + flash * 0.8);
+  drawSpark(cx, cy, R, { alpha: solid, rot, grow: 1 });
+  if (flash > 0.01) { ctx.save(); ctx.globalAlpha = flash * 0.35; ctx.fillStyle = '#fff4ea'; ctx.fillRect(0, 0, W, H); ctx.restore(); }
+  // 标题
+  const ta = easeOut(prog(t, 8.0, 9.0));
+  if (ta > 0) {
+    lockup(H / 2 + 80, 132, ta, easeOut(prog(t, 8.3, 9.3)), lerp(40, 2, ta), (1 - ta) * 12);
+  }
+  const sa = easeOut(prog(t, 9.0, 9.7));
+  text('新一代旗舰模型', W / 2, H / 2 + 200, { size: 34, weight: 300, color: C.dim, alpha: sa, spacing: 14 });
+  ctx.restore();
+}
+
+// ---------- 通用：主标题 Claude + Opus 5.5 按实测宽度居中 ----------
+function lockup(y, size, a1, a2, spacing, blur) {
+  ctx.save(); ctx.font = `400 ${size}px ${SERIF}`; if ('letterSpacing' in ctx) ctx.letterSpacing = spacing + 'px';
+  const w1 = ctx.measureText('Claude').width, w2 = ctx.measureText('Opus 5.5').width, gap = size * 0.32;
+  ctx.restore();
+  const x0 = W / 2 - (w1 + gap + w2) / 2;
+  text('Claude', x0, y, { size, font: SERIF, align: 'left', alpha: a1, spacing, blur });
+  text('Opus 5.5', x0 + w1 + gap, y, { size, font: SERIF, align: 'left', color: C.coral, alpha: a2, spacing, blur });
+}
+
+// ---------- 通用：场景标题 ----------
+function heading(t, t0, title, sub, idx) {
+  const k1 = easeOut(prog(t, t0 + 0.2, t0 + 1.0)), k2 = easeOut(prog(t, t0 + 0.6, t0 + 1.4));
+  text(idx, 200, 360, { size: 26, font: MONO, color: C.coral, align: 'left', alpha: k1, spacing: 6 });
+  ctx.save(); ctx.globalAlpha *= k1; ctx.fillStyle = C.coral; ctx.fillRect(200, 395, 70 * k1, 3); ctx.restore();
+  text(title, 200 - (1 - k1) * 40, 490, { size: 104, font: SERIF, weight: 600, align: 'left', alpha: k1 });
+  const lines = sub.split('\n');
+  lines.forEach((ln, i) => text(ln, 202, 610 + i * 58, { size: 34, weight: 300, color: C.dim, align: 'left', alpha: easeOut(prog(t, t0 + 0.6 + i * 0.2, t0 + 1.4 + i * 0.2)) }));
+}
+
+// ---------- S3 想得更深：思维树 10.6–16.4 ----------
+function scene3(t) {
+  const a = win(t, 10.5, 16.4, 0.5, 0.6); if (!a) return;
+  ctx.save(); ctx.globalAlpha = a;
+  heading(t, 10.5, '想得更深', '面对复杂问题，\n层层拆解，步步推演。', '01 / REASONING');
+  const lt = (t - 10.9) * 1.05;
+  ctx.lineCap = 'round';
+  const tips = [];
+  for (const b of branches) {
+    const k = easeOut(clamp((lt - b.t0) / (b.t1 - b.t0)));
+    if (k <= 0) continue;
+    const x2 = lerp(b.x, b.x2, k), y2 = lerp(b.y, b.y2, k);
+    ctx.strokeStyle = b.depth < 3 ? C.sand : `rgba(217,119,87,${0.9 - b.depth * 0.07})`;
+    ctx.lineWidth = Math.max(1.2, 9 - b.depth * 1.2);
+    ctx.globalAlpha = a * (0.55 + 0.45 * (1 - b.depth / 8));
+    ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(x2, y2); ctx.stroke();
+    if (k >= 1 && b.depth === 7) tips.push([b.x2, b.y2, lt - b.t1]);
+  }
+  ctx.globalAlpha = a;
+  for (const [x, y, age] of tips) {
+    const s = easeBack(clamp(age / 0.4));
+    glow(x, y, 26, 'rgba(240,160,124,0.9)', 0.5 * clamp(age / 0.4));
+    ctx.fillStyle = C.coralHi; ctx.beginPath(); ctx.arc(x, y, 4 * s, 0, Math.PI * 2); ctx.fill();
+  }
+  // 一个亮点沿主干往上跑，象征推理路径
+  const pathK = prog(t, 13.4, 15.6);
+  if (pathK > 0 && pathK < 1) {
+    let path = [branches[0]], cur = branches[0];
+    for (let d = 1; d <= 7; d++) { const nx = branches.find(b => b.depth === d && Math.hypot(b.x - cur.x2, b.y - cur.y2) < 0.5 && (d % 2 ? b.x2 >= cur.x2 : b.x2 <= cur.x2)) || branches.find(b => b.depth === d && Math.hypot(b.x - cur.x2, b.y - cur.y2) < 0.5); if (!nx) break; path.push(nx); cur = nx; }
+    const f = pathK * path.length, i = Math.min(path.length - 1, Math.floor(f)), kk = f - i, b = path[i];
+    const px = lerp(b.x, b.x2, kk), py = lerp(b.y, b.y2, kk);
+    glow(px, py, 60, 'rgba(255,236,220,0.9)', 0.9); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ---------- S4 做得更远：代码窗口 + 进度线 16.4–22.2 ----------
+function scene4(t) {
+  const a = win(t, 16.3, 22.2, 0.5, 0.6); if (!a) return;
+  ctx.save(); ctx.globalAlpha = a;
+  heading(t, 16.3, '做得更远', '长时间自主任务，\n从规划到交付，一以贯之。', '02 / AGENTIC');
+  const e = easeOut(prog(t, 16.5, 17.3));
+  const X = 960 + (1 - e) * 80, Y = 270, WW = 780, HH = 460;
+  ctx.globalAlpha = a * e;
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 60; ctx.shadowOffsetY = 20;
+  roundRect(X, Y, WW, HH, 18); ctx.fillStyle = '#1c1a17'; ctx.fill(); ctx.restore();
+  roundRect(X, Y, WW, HH, 18); ctx.strokeStyle = 'rgba(242,238,228,0.1)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ['#e0664f', '#e2b24c', '#6fbf73'].forEach((c, i) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(X + 34 + i * 26, Y + 30, 7, 0, Math.PI * 2); ctx.fill(); });
+  text('ship.ts', X + WW / 2, Y + 30, { size: 20, font: MONO, color: 'rgba(242,238,228,0.4)' });
+  ctx.fillStyle = 'rgba(242,238,228,0.06)'; ctx.fillRect(X, Y + 58, WW, 1);
+  // 打字
+  let budget = Math.floor(codeTotal * easeInOut(prog(t, 17.1, 20.2)));
+  ctx.font = `400 22px ${MONO}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  let lastX = X + 70, lastY = Y + 96;
+  codeLines.forEach((line, li) => {
+    const y = Y + 96 + li * 34; let x = X + 70;
+    if (budget > 0 || li === 0) { ctx.fillStyle = 'rgba(242,238,228,0.22)'; ctx.fillText(String(li + 1).padStart(2), X + 22, y); }
+    for (const [kind, s] of line) {
+      if (budget <= 0) break;
+      const part = s.slice(0, budget); budget -= part.length;
+      ctx.fillStyle = codeColor[kind]; ctx.fillText(part, x, y);
+      x += ctx.measureText(part).width; lastX = x; lastY = y;
+    }
+  });
+  if (Math.floor(t * 3) % 2 === 0 || t < 20.2) { ctx.fillStyle = C.coral; ctx.fillRect(lastX + 2, lastY - 13, 11, 26); }
+  // 进度线
+  const steps = ['规划', '实现', '测试', '交付'];
+  const LX = X + 20, LW = WW - 40, LY = Y + HH + 90;
+  ctx.fillStyle = C.faint; ctx.fillRect(LX, LY - 1.5, LW, 3);
+  const pk = easeInOut(prog(t, 17.2, 21.0));
+  ctx.fillStyle = C.coral; ctx.fillRect(LX, LY - 1.5, LW * pk, 3);
+  steps.forEach((s, i) => {
+    const sx = LX + (LW * i) / (steps.length - 1), on = pk >= i / (steps.length - 1) - 0.001;
+    const hit = clamp((pk - i / 3) * 12);
+    if (on) glow(sx, LY, 40, 'rgba(217,119,87,0.8)', 0.6 * hit);
+    ctx.fillStyle = on ? C.coral : '#2a2723'; ctx.beginPath(); ctx.arc(sx, LY, 10 + 3 * Math.sin(hit * Math.PI), 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = on ? C.coralHi : 'rgba(242,238,228,0.25)'; ctx.lineWidth = 2; ctx.stroke();
+    text(s, sx, LY + 44, { size: 26, weight: on ? 500 : 300, color: on ? C.cream : C.dim });
+  });
+  const done = easeOut(prog(t, 21.0, 21.4));
+  text('✓ 全部通过', LX + LW, LY - 40, { size: 24, font: SANS, color: C.mono, align: 'right', alpha: done });
+  ctx.restore();
+}
+
+// ---------- S5 协作更可靠：工具网络 22.2–27.8 ----------
+const TOOLS = ['终端', '浏览器', '文档', '数据', '设计', '代码库'];
+function scene5(t) {
+  const a = win(t, 22.1, 27.8, 0.5, 0.6); if (!a) return;
+  ctx.save(); ctx.globalAlpha = a;
+  heading(t, 22.1, '协作更可靠', '善用工具，说明依据，\n每一步都经得起验证。', '03 / TRUST');
+  const cx = 1340, cy = 540, R = 300;
+  const e = easeOut(prog(t, 22.4, 23.2));
+  // 轨道
+  ctx.strokeStyle = C.faint; ctx.lineWidth = 1.5; ctx.setLineDash([4, 10]);
+  ctx.beginPath(); ctx.arc(cx, cy, R * e, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+  const spin = t * 0.12;
+  TOOLS.forEach((name, i) => {
+    const k = easeBack(prog(t, 22.8 + i * 0.18, 23.4 + i * 0.18));
+    if (k <= 0) return;
+    const ang = -Math.PI / 2 + (i / TOOLS.length) * Math.PI * 2 + spin;
+    const x = cx + Math.cos(ang) * R, y = cy + Math.sin(ang) * R;
+    // 连线
+    const lk = clamp(k);
+    ctx.strokeStyle = 'rgba(217,119,87,0.45)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(lerp(cx, x, lk), lerp(cy, y, lk)); ctx.stroke();
+    // 往返脉冲
+    for (let j = 0; j < 2; j++) {
+      const ph = ((t * 0.9 + i * 0.37 + j * 0.5) % 1);
+      const out = j === 0, q = out ? ph : 1 - ph;
+      if (t < 23.6 + i * 0.18) continue;
+      const px = lerp(cx, x, q), py = lerp(cy, y, q);
+      ctx.fillStyle = out ? C.coralHi : C.mono; ctx.globalAlpha = a * Math.sin(ph * Math.PI);
+      ctx.beginPath(); ctx.arc(px, py, 4.5, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = a;
+    // 节点
+    const nr = 62 * k;
+    ctx.fillStyle = '#1f1c19'; ctx.beginPath(); ctx.arc(x, y, nr, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(242,238,228,0.22)'; ctx.lineWidth = 1.5; ctx.stroke();
+    text(name, x, y + 1, { size: 26 * clamp(k), weight: 400 });
+    // 验证勾
+    const ok = easeOut(prog(t, 25.2 + i * 0.15, 25.5 + i * 0.15));
+    if (ok > 0) {
+      const bx = x + nr * 0.72, by = y - nr * 0.72;
+      ctx.fillStyle = C.mono; ctx.globalAlpha = a * ok; ctx.beginPath(); ctx.arc(bx, by, 15 * ok, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#12110f'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(bx - 6, by); ctx.lineTo(bx - 1.5, by + 5); ctx.lineTo(bx + 7, by - 5); ctx.stroke();
+      ctx.globalAlpha = a;
+    }
+  });
+  glow(cx, cy, 200, 'rgba(217,119,87,0.6)', 0.5 * e);
+  drawSpark(cx, cy, 90, { alpha: e, rot: t * 0.3, grow: e });
+  ctx.restore();
+}
+
+// ---------- S6 关键词快切 27.8–32.2 ----------
+const WORDS = [['写作', 'Writing'], ['编程', 'Coding'], ['研究', 'Research'], ['分析', 'Analysis'], ['设计', 'Design'], ['学习', 'Learning']];
+function scene6(t) {
+  const a = win(t, 27.7, 32.3, 0.3, 0.5); if (!a) return;
+  ctx.save(); ctx.globalAlpha = a;
+  // 放射线
+  ctx.save(); ctx.translate(W / 2, H / 2); ctx.rotate(t * 0.05);
+  for (let i = 0; i < 48; i++) {
+    ctx.rotate(Math.PI * 2 / 48);
+    ctx.fillStyle = i % 2 ? 'rgba(217,119,87,0.05)' : 'rgba(242,238,228,0.025)';
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(1400, -40); ctx.lineTo(1400, 40); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+  const t0 = 27.9, per = 0.62;
+  const idx = Math.floor((t - t0) / per);
+  if (idx >= 0 && idx < WORDS.length) {
+    const k = (t - t0 - idx * per) / per;
+    const inn = easeOut(clamp(k / 0.35)), out = easeIn(clamp((k - 0.75) / 0.25));
+    const [zh, en] = WORDS[idx];
+    const y = H / 2 - 20 + (1 - inn) * 60 - out * 60;
+    text(zh, W / 2, y, { size: 220, font: SERIF, weight: 600, alpha: inn * (1 - out), color: idx % 2 ? C.coral : C.cream, blur: (1 - inn) * 8 + out * 8 });
+    text(en.toUpperCase(), W / 2, y + 170, { size: 30, font: MONO, alpha: inn * (1 - out) * 0.7, spacing: 18, color: C.sand });
+  }
+  // 最后一句
+  const fk = easeOut(prog(t, 31.6, 32.1));
+  text('你想做的，都可以从这里开始。', W / 2, H / 2, { size: 64, weight: 300, alpha: fk, spacing: 4 });
+  // 计数刻度
+  ctx.globalAlpha = a;
+  for (let i = 0; i < WORDS.length; i++) {
+    ctx.fillStyle = i <= idx && idx < WORDS.length ? C.coral : C.faint;
+    ctx.fillRect(W / 2 - 3 * 34 + i * 34, H - 170, 22, 3);
+  }
+  ctx.restore();
+}
+
+// ---------- S7 收尾定版 32.2–38 ----------
+function scene7(t) {
+  const a = win(t, 32.2, 38, 0.6, 0.9); if (!a) return;
+  ctx.save(); ctx.globalAlpha = a;
+  const g = easeOut(prog(t, 32.3, 33.5));
+  glow(W / 2, H / 2 - 150, 420, 'rgba(217,119,87,0.45)', g);
+  drawSpark(W / 2, H / 2 - 150, 120, { alpha: 1, rot: t * 0.06, grow: g });
+  const ta = easeOut(prog(t, 33.0, 34.0));
+  lockup(H / 2 + 60, 120, ta, easeOut(prog(t, 33.2, 34.2)), lerp(24, 2, ta), (1 - ta) * 6);
+  const sa = easeOut(prog(t, 34.2, 35.0));
+  text('想得更深，做得更远。', W / 2, H / 2 + 175, { size: 44, weight: 300, alpha: sa, spacing: 10 });
+  const ma = easeOut(prog(t, 34.9, 35.6));
+  ctx.save(); ctx.globalAlpha *= ma;
+  ctx.font = `400 24px ${MONO}`; const mw = ctx.measureText('model: claude-opus-5-5').width + 48;
+  roundRect(W / 2 - mw / 2, H / 2 + 250, mw, 50, 25); ctx.strokeStyle = 'rgba(242,238,228,0.2)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.restore();
+  text('model: claude-opus-5-5', W / 2, H / 2 + 276, { size: 24, font: MONO, color: C.sand, alpha: ma });
+  ctx.restore();
+}
+
+function renderAt(t) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none';
+  background(t);
+  scene1(t); scene2(t); scene3(t); scene4(t); scene5(t); scene6(t); scene7(t);
+  post(t);
+  // 片头片尾黑场
+  const black = Math.max(1 - prog(t, 0, 0.5), prog(t, 37.2, 38));
+  if (black > 0) { ctx.fillStyle = `rgba(0,0,0,${black})`; ctx.fillRect(0, 0, W, H); }
+}
+window.renderAt = renderAt; window.DURATION = DURATION;
+
+// 直接打开页面时实时播放；?t=12.3 停在某一帧；导出脚本传 ?export
+const qs = new URLSearchParams(location.search);
+if (qs.has('t')) renderAt(parseFloat(qs.get('t')));
+else if (!qs.has('export')) {
+  const start = performance.now();
+  (function loop() { renderAt(((performance.now() - start) / 1000) % DURATION); requestAnimationFrame(loop); })();
+}
+</script>
+</body>
+</html>

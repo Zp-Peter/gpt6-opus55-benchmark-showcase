@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>像素小城 · 恐龙过境</title>
+  <link rel="stylesheet" href="./src/style.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect x=%222%22 y=%226%22 width=%2212%22 height=%228%22 fill=%22%235f7d40%22/%3E%3Crect x=%229%22 y=%222%22 width=%226%22 height=%225%22 fill=%22%235f7d40%22/%3E%3C/svg%3E" />
+</head>
+<body>
+  <div id="stage"></div>
+  <div id="loading"><div class="bar"><i></i></div><span>正在搭建微缩城市…</span></div>
+  <div id="hud" class="hidden">
+    <div id="progress" title="时间轴"><i id="progFill"></i><div id="marks"></div></div>
+    <div id="controls">
+      <button id="btnPlay" title="暂停 / 继续（空格）">❚❚</button>
+      <button id="btnReplay" title="重新播放（R）">↺</button>
+      <button id="btnMute" title="声音（M）">🔇</button>
+      <span id="time">0.0s</span>
+    </div>
+  </div>
+  <div id="endcard" class="hidden">— 完 —<small>点击 ↺ 重新播放</small></div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

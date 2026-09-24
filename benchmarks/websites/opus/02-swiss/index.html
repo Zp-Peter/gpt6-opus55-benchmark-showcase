@@ -1,0 +1,731 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>陆白字体工作室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap">
+<style>
+:root{
+  --paper:#ebeae5; --card:#f6f5f1; --ink:#111110; --mute:#6b6862; --line:rgba(17,17,16,.16); --red:#ff3d00; --on-red:#111110;
+  --display:"Archivo","Noto Sans SC",system-ui,sans-serif;
+  --body:"Noto Sans SC","Archivo",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --g:clamp(16px,3vw,40px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#121211;--card:#1b1b19;--ink:#ebeae5;--mute:#96928a;--line:rgba(235,234,229,.16);--red:#ff5a24}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#121211;--card:#1b1b19;--ink:#ebeae5;--mute:#96928a;--line:rgba(235,234,229,.16);--red:#ff5a24}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{background:var(--paper);color:var(--ink);font:15px/1.65 var(--body);overflow-x:hidden;transition:background .4s,color .4s}
+::selection{background:var(--red);color:var(--on-red)}
+a{color:inherit}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.wrap{padding-inline:var(--g)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);column-gap:clamp(10px,1.6vw,24px)}
+.mono{font:400 12px/1.4 var(--mono);letter-spacing:.02em;text-transform:uppercase}
+.mute{color:var(--mute)}
+
+/* scroll progress + grid overlay */
+.prog{position:fixed;top:0;left:0;height:3px;background:var(--red);z-index:70;width:0}
+.gov{position:fixed;inset:0;z-index:65;pointer-events:none;padding-inline:var(--g);opacity:0;transition:opacity .3s}
+.gov.on{opacity:1}
+.gov .grid{height:100%}
+.gov i{background:color-mix(in srgb,var(--red) 10%,transparent);border-inline:1px solid color-mix(in srgb,var(--red) 40%,transparent)}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .grid{padding-block:12px;align-items:center}
+.top .brand{grid-column:1/4;font:800 15px/1 var(--display);font-stretch:125%;letter-spacing:-.01em;text-decoration:none}
+.top .c2{grid-column:4/7}.top .c3{grid-column:7/9}
+.top nav{grid-column:9/12;display:flex;gap:16px}
+.top nav a{text-decoration:none;position:relative}
+.top nav a::after{content:"";position:absolute;left:0;bottom:-2px;height:1.5px;width:100%;background:var(--red);transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.7,0,.2,1)}
+.top nav a:hover::after{transform:scaleX(1);transform-origin:left}
+.top .tools{grid-column:12/13;display:flex;justify-content:flex-end;gap:6px}
+.ib{width:30px;height:30px;border:1px solid var(--line);background:transparent;display:grid;place-items:center;cursor:pointer;border-radius:50%;transition:.2s}
+.ib:hover{background:var(--ink);color:var(--paper)}
+.ib[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:var(--on-red)}
+@media (max-width:900px){.top .c2,.top .c3{display:none}.top .brand{grid-column:1/7}.top nav{display:none}.top .tools{grid-column:7/13}}
+
+/* hero */
+.hero{position:relative;padding-block:clamp(28px,5vw,60px) 40px;border-bottom:1px solid var(--line)}
+.hero .meta{grid-column:1/13;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.name{grid-column:1/8;grid-row:2;font-family:var(--display);font-size:clamp(88px,17vw,280px);line-height:.8;letter-spacing:-.04em;margin:0;user-select:none;position:relative;z-index:2}
+.name .ln{display:block;white-space:nowrap}
+.name .ch{display:inline-block;font-variation-settings:"wdth" 100,"wght" 800;transition:color .2s}
+.name .ch.pt{color:var(--red)}
+.blobbox{grid-column:7/13;grid-row:2/4;position:relative;min-height:clamp(320px,42vw,600px);margin-top:-20px}
+.blobbox canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:pan-y}
+.blobbox canvas:active{cursor:grabbing}
+.blobbox .shadow{position:absolute;left:18%;right:18%;bottom:4%;height:40px;background:radial-gradient(closest-side,color-mix(in srgb,var(--ink) 30%,transparent),transparent);filter:blur(6px)}
+.blobbox .lab{position:absolute;right:0;top:12px;text-align:right}
+.blobbox .lab2{position:absolute;left:0;bottom:10px}
+.intro{grid-column:1/7;grid-row:3;margin-top:34px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.intro p{margin:0;font-size:17px;line-height:1.6;max-width:36ch}
+.intro .big{font:500 clamp(20px,2vw,26px)/1.35 var(--body);grid-column:1/3;max-width:20em;text-wrap:balance}
+.intro .big em{font-style:normal;color:var(--red)}
+@media (max-width:900px){.name{grid-column:1/13;grid-row:auto}.blobbox{grid-column:1/13;grid-row:auto;margin-top:0}.acts{grid-row:auto}.intro{grid-column:1/13;grid-row:auto;grid-template-columns:1fr}.intro .big{grid-column:1}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:999px;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);text-decoration:none;cursor:pointer;font:600 14px/1 var(--display);letter-spacing:.01em;position:relative;overflow:hidden;isolation:isolate;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.btn::before{content:"";position:absolute;inset:0;background:var(--red);border-radius:inherit;transform:translateY(101%);transition:transform .45s cubic-bezier(.7,0,.2,1);z-index:-1}
+.btn:hover::before{transform:none}
+.btn:hover{color:var(--on-red);border-color:var(--red)}
+.btn.line{background:transparent;color:var(--ink)}
+.btn .arr{transition:transform .3s}
+.btn:hover .arr{transform:translateX(4px) rotate(-45deg)}
+.acts{grid-column:1/7;grid-row:4;display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+
+/* marquee */
+.mq{overflow:hidden;border-bottom:1px solid var(--line);padding-block:18px}
+.mq .tk{display:flex;width:max-content;animation:mq 34s linear infinite}
+.mq:hover .tk{animation-play-state:paused}
+.mq span{font:800 clamp(34px,5vw,64px)/1 var(--display);font-stretch:62%;text-transform:uppercase;padding-inline:22px;white-space:nowrap;-webkit-text-stroke:1px var(--ink);color:transparent;transition:color .3s}
+.mq span:hover{color:var(--red);-webkit-text-stroke-color:var(--red)}
+.mq span b{color:var(--red);-webkit-text-stroke:0;font-weight:800}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* sections */
+section{padding-block:clamp(64px,9vw,120px);border-bottom:1px solid var(--line)}
+.sh{grid-column:1/13;display:grid;grid-template-columns:repeat(12,1fr);column-gap:inherit;margin-bottom:clamp(28px,4vw,48px);align-items:end}
+.sh .no{grid-column:1/3;font:800 clamp(40px,6vw,86px)/.8 var(--display);font-stretch:62%;color:var(--red)}
+.sh h2{grid-column:3/9;font:800 clamp(34px,5.4vw,78px)/.92 var(--display);letter-spacing:-.03em;margin:0;text-wrap:balance}
+.sh h2 .cn{display:block;font:700 .38em/1.4 var(--body);letter-spacing:.02em;color:var(--mute);margin-top:8px}
+.sh p{grid-column:9/13;margin:0;color:var(--mute);max-width:36ch}
+@media (max-width:900px){.sh .no{grid-column:1/13}.sh h2{grid-column:1/13}.sh p{grid-column:1/13;margin-top:12px}}
+.split .w{display:inline-block;overflow:hidden;vertical-align:top}
+.split .w>span{display:inline-block;transition:transform .9s cubic-bezier(.2,.8,.1,1)}
+.split.pre .w>span{transform:translateY(105%)}
+
+/* index table */
+.ctl{grid-column:1/13;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.pill{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 14px;cursor:pointer;font:500 13px/1 var(--body);transition:.2s}
+.pill:hover{border-color:var(--ink)}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.pill .n{font:400 11px/1 var(--mono);opacity:.6;margin-left:4px}
+.ctl .sp{flex:1}
+.idx{grid-column:1/13;border-top:1.5px solid var(--ink)}
+.row{display:grid;grid-template-columns:60px 2.2fr 1.4fr 1fr 70px 30px;gap:16px;align-items:center;padding:18px 0;border-bottom:1px solid var(--line);cursor:pointer;position:relative;transition:padding .35s cubic-bezier(.2,.8,.1,1),color .2s}
+.row::before{content:"";position:absolute;inset:0;background:var(--red);transform:scaleY(0);transform-origin:bottom;transition:transform .35s cubic-bezier(.7,0,.2,1);z-index:-1}
+.row:hover{padding-inline:14px;color:var(--on-red)}
+.row:hover::before{transform:none}
+.row:hover .mute{color:inherit}
+.row h3{font:700 clamp(18px,2vw,26px)/1.1 var(--display);margin:0;letter-spacing:-.01em}
+.row .pl{font-size:22px;transition:transform .3s;text-align:right}
+.row[aria-expanded="true"] .pl{transform:rotate(45deg)}
+.idxbody{position:relative;isolation:isolate}
+.detail{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s cubic-bezier(.2,.8,.1,1);border-bottom:1px solid var(--line)}
+.detail>div{overflow:hidden}
+.detail.open{grid-template-rows:1fr}
+.detail .dc{display:grid;grid-template-columns:60px 1fr 1fr;gap:16px;padding:6px 0 26px}
+.detail .dc p{margin:0;max-width:52ch}
+.detail .dc .facts{display:flex;gap:24px;flex-wrap:wrap}
+.detail .dc .facts b{display:block;font:800 30px/1 var(--display);font-stretch:62%}
+@media (max-width:760px){.row{grid-template-columns:40px 1fr 30px}.row .c3,.row .c4,.row .c5{display:none}.detail .dc{grid-template-columns:1fr}.detail .dc>span{display:none}}
+.peek{position:fixed;left:0;top:0;width:220px;aspect-ratio:3/4;z-index:60;pointer-events:none;opacity:0;transform:scale(.6) rotate(-6deg);transition:opacity .25s,transform .35s cubic-bezier(.3,1.5,.5,1);box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.peek.on{opacity:1;transform:scale(1) rotate(-3deg)}
+@media (pointer:coarse){.peek{display:none}}
+
+/* posters */
+.poster{container-type:inline-size;aspect-ratio:3/4;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(17,17,16,.18);background:#ebeae5;color:#111110;max-width:100%}
+.poster *{position:absolute}
+.poster .cap{left:6cqw;bottom:5cqw;font:600 3.6cqw/1.2 var(--mono);text-transform:uppercase;letter-spacing:.02em}
+.poster .cap2{right:6cqw;top:5cqw;font:600 3.6cqw/1.2 var(--mono);text-align:right}
+.p1 .n{font:900 105cqw/.8 "Archivo",sans-serif;font-stretch:62%;color:#ff3d00;left:-4cqw;top:6cqw;letter-spacing:-.05em}
+.p1 .r{left:0;right:0;height:.6cqw;background:#111110}
+.p2{background:#111110;color:#ebeae5}
+.p2 .c{width:70cqw;height:70cqw;border-radius:50%;background:#ff3d00;left:15cqw;top:18cqw;mix-blend-mode:normal}
+.p2 .t{left:6cqw;top:62cqw;font:900 16cqw/.85 "Archivo",sans-serif;font-stretch:125%;letter-spacing:-.04em;color:#ebeae5;mix-blend-mode:difference}
+.p3{display:block}
+.p3 .d{width:17cqw;height:17cqw;border-radius:50%;background:#111110}
+.p4{background:#ff3d00}
+.p4 .s{left:5cqw;font:900 14cqw/.84 "Archivo",sans-serif;letter-spacing:-.03em;white-space:nowrap}
+.p5 .bar{width:150cqw;height:26cqw;background:#ff3d00;left:-25cqw;top:52cqw;transform:rotate(-32deg)}
+.p5 .t{left:6cqw;top:8cqw;font:800 12cqw/.9 "Archivo",sans-serif;font-stretch:62%;letter-spacing:-.02em}
+.p6{background:#111110}
+.p6 .q{border:1.2cqw solid #ebeae5;left:50%;top:44%;transform:translate(-50%,-50%)}
+.p6 .q.r{border-color:#ff3d00}
+
+/* carousel */
+.car{grid-column:1/13}
+.track{display:flex;gap:clamp(12px,2vw,24px);overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;cursor:grab;padding-bottom:4px}
+.track::-webkit-scrollbar{display:none}
+.track.drag{cursor:grabbing;scroll-snap-type:none}
+.track .it{flex:0 0 clamp(230px,26vw,360px);scroll-snap-align:start;user-select:none}
+.track .it .poster{transition:transform .5s cubic-bezier(.2,.8,.1,1)}
+.track .it:hover .poster{transform:translateY(-8px) rotate(-1deg)}
+.track figcaption{display:flex;justify-content:space-between;margin-top:10px}
+.carbar{display:flex;align-items:center;gap:14px;margin-top:22px}
+.carbar .pb{flex:1;height:2px;background:var(--line);position:relative}
+.carbar .pb i{position:absolute;left:0;top:0;bottom:0;background:var(--ink);width:20%}
+.round{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--ink);background:transparent;cursor:pointer;font-size:18px;transition:.2s}
+.round:hover{background:var(--ink);color:var(--paper)}
+
+/* tester */
+.tester{grid-column:1/13;display:grid;grid-template-columns:300px 1fr;border:1.5px solid var(--ink);background:var(--card)}
+@media (max-width:900px){.tester{grid-template-columns:1fr}}
+.tctl{padding:22px;border-right:1.5px solid var(--ink);display:flex;flex-direction:column;gap:18px}
+@media (max-width:900px){.tctl{border-right:0;border-bottom:1.5px solid var(--ink)}}
+.sl label{display:flex;justify-content:space-between;margin-bottom:6px}
+.sl output{font:600 12px/1 var(--mono);color:var(--red)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:18px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,var(--ink) var(--p,50%),var(--line) var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--red);margin-top:-7px;border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--ink);transition:transform .2s}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.35)}
+input[type=range]::-moz-range-track{height:2px;background:var(--line)}
+input[type=range]::-moz-range-progress{height:2px;background:var(--ink)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid var(--card)}
+.segm{display:flex;border:1px solid var(--ink);border-radius:999px;padding:3px;position:relative}
+.segm button{flex:1;border:0;background:transparent;padding:7px 4px;border-radius:999px;cursor:pointer;position:relative;z-index:1;font:600 12px/1 var(--mono);transition:color .25s}
+.segm button[aria-pressed="true"]{color:var(--paper)}
+.segm .ind{position:absolute;top:3px;bottom:3px;border-radius:999px;background:var(--ink);transition:left .35s cubic-bezier(.7,0,.2,1),width .35s}
+.sws{display:flex;gap:8px}
+.sws button{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);cursor:pointer;transition:transform .2s}
+.sws button[aria-pressed="true"]{transform:scale(1.2);box-shadow:0 0 0 3px var(--card),0 0 0 4.5px var(--red)}
+.tview{padding:clamp(18px,3vw,36px);display:flex;flex-direction:column;gap:16px;min-width:0;transition:background .3s,color .3s}
+.tview .bar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#tprev{outline:0;font-family:"Archivo","Noto Sans SC",sans-serif;line-height:1;min-height:1.1em;overflow-wrap:anywhere;margin:0;transition:font-size .15s}
+#tprev:focus-visible{box-shadow:inset 0 -2px 0 var(--red)}
+.glyphs{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.glyphs button{aspect-ratio:1;border:0;background:var(--card);cursor:pointer;font:500 22px/1 "Archivo",sans-serif;transition:.15s}
+.glyphs button:hover,.glyphs button:focus-visible{background:var(--red);color:var(--on-red);font-weight:900}
+.glyphbig{display:flex;align-items:flex-end;gap:18px}
+.glyphbig b{font:800 clamp(90px,12vw,160px)/.8 "Archivo",sans-serif;min-width:1ch}
+.glyphbig .mono span{display:block}
+
+/* stats */
+.stats{grid-column:1/13;display:grid;grid-template-columns:repeat(4,1fr);border-top:1.5px solid var(--ink)}
+.stats div{padding:20px 16px 0 0;border-right:1px solid var(--line)}
+.stats div:last-child{border-right:0}
+.stats b{display:block;font:800 clamp(48px,7vw,110px)/.9 var(--display);font-stretch:62%;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stats b sup{font-size:.35em;color:var(--red);vertical-align:top;margin-left:4px}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}.stats div:nth-child(2){border-right:0}}
+
+/* services */
+.svc{grid-column:3/13}
+@media (max-width:900px){.svc{grid-column:1/13}}
+.svc details{border-top:1.5px solid var(--ink)}
+.svc details:last-child{border-bottom:1.5px solid var(--ink)}
+.svc summary{list-style:none;display:grid;grid-template-columns:1fr auto 40px;gap:16px;align-items:baseline;padding:22px 0;cursor:pointer}
+.svc summary::-webkit-details-marker{display:none}
+.svc summary h3{margin:0;font:700 clamp(22px,3vw,40px)/1 var(--display);letter-spacing:-.02em;transition:font-stretch .4s,color .2s}
+.svc summary:hover h3{font-stretch:125%;color:var(--red)}
+.svc summary .ic{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;transition:transform .35s,background .2s}
+.svc details[open] .ic{transform:rotate(45deg);background:var(--red);border-color:var(--red)}
+.svc .bd{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:0 0 26px}
+.svc .bd p{margin:0;max-width:44ch}
+.svc .bd ul{margin:0;padding:0;list-style:none}
+.svc .bd li{padding:6px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+@media (max-width:640px){.svc .bd{grid-template-columns:1fr}}
+
+/* quotes */
+.quote{grid-column:1/13;display:grid;grid-template-columns:repeat(12,1fr);column-gap:inherit;align-items:start}
+.quote .qm{grid-column:1/3;font:900 clamp(120px,16vw,240px)/.7 var(--display);color:var(--red)}
+.quote .qb{grid-column:3/11;min-height:12em}
+.quote blockquote{margin:0;font:500 clamp(22px,3vw,40px)/1.3 var(--body);letter-spacing:-.01em;text-wrap:balance;transition:opacity .35s,transform .35s}
+.quote blockquote.fade{opacity:0;transform:translateY(12px)}
+.quote cite{display:block;margin-top:22px;font-style:normal}
+.quote .qn{grid-column:11/13;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.quote .qn .count{font:800 44px/1 var(--display);font-stretch:62%;font-variant-numeric:tabular-nums}
+@media (max-width:900px){.quote .qm{grid-column:1/13}.quote .qb{grid-column:1/13}.quote .qn{grid-column:1/13;flex-direction:row;align-items:center;margin-top:20px}}
+
+/* contact */
+.mail{grid-column:1/13;font:800 clamp(34px,8.4vw,150px)/.9 var(--display);letter-spacing:-.04em;text-decoration:none;display:inline-block;position:relative;width:max-content;max-width:100%;overflow-wrap:anywhere;background:none;border:0;padding:0;text-align:left;cursor:pointer}
+.mail span{background:linear-gradient(var(--red),var(--red)) 0 100%/0 .09em no-repeat;transition:background-size .6s cubic-bezier(.7,0,.2,1)}
+.mail:hover span{background-size:100% .09em}
+.cgrid{grid-column:1/13;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:40px}
+@media (max-width:900px){.cgrid{grid-template-columns:1fr}}
+.news{display:flex;border-bottom:1.5px solid var(--ink)}
+.news input{flex:1;min-width:0;background:transparent;border:0;outline:0;padding:12px 0;font-size:16px}
+.news button{border:0;background:transparent;cursor:pointer;font:700 14px/1 var(--display)}
+.news button:hover{color:var(--red)}
+.hint{min-height:1.4em;font:400 12px/1.4 var(--mono);margin-top:6px}
+.hint.err{color:var(--red)}
+.check{display:flex;gap:10px;align-items:center;margin-top:12px;cursor:pointer;font-size:13px}
+.check input{appearance:none;-webkit-appearance:none;width:18px;height:18px;border:1.5px solid var(--ink);border-radius:50%;margin:0;display:grid;place-items:center;cursor:pointer}
+.check input:checked{border-color:var(--red)}
+.check input:checked::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--red)}
+footer{padding-block:28px calc(28px + env(safe-area-inset-bottom,0px))}
+footer .grid>*{grid-column:span 4}
+@media (max-width:760px){footer .grid>*{grid-column:span 12}}
+
+/* toast, cursor */
+.toasts{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;align-items:center;gap:8px;width:calc(100% - 32px);pointer-events:none}
+.toast{background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:999px;display:flex;gap:10px;align-items:center;font-size:14px;animation:tin .5s cubic-bezier(.3,1.5,.5,1);pointer-events:auto;max-width:100%}
+.toast i{width:8px;height:8px;border-radius:50%;background:var(--red);flex:none}
+.toast.out{animation:tout .3s forwards}
+@keyframes tin{from{transform:translateY(30px) scale(.9);opacity:0}}
+@keyframes tout{to{transform:translateY(20px);opacity:0}}
+.dot{position:fixed;left:0;top:0;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:100;transition:width .3s,height .3s,margin .3s;opacity:0}
+.dot.big{width:64px;height:64px;margin:-32px 0 0 -32px}
+@media (pointer:coarse){.dot{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.001s!important}.split.pre .w>span{transform:none}}
+[id]{scroll-margin-top:60px}
+</style>
+
+<div class="prog" id="prog"></div>
+<div class="gov" id="gov" aria-hidden="true"><div class="grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+<div class="dot" id="dot" aria-hidden="true"></div>
+<div class="peek" id="peek" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="wrap grid">
+    <a class="brand" href="#">LU BAI® 陆白</a>
+    <span class="c2 mono mute">字体设计 / 平面设计 / 上海</span>
+    <span class="c3 mono"><span class="mute">SHA </span><span id="clock">--:--:--</span></span>
+    <nav class="mono" aria-label="主导航"><a href="#index">作品</a><a href="#tester">字体</a><a href="#posters">海报</a><a href="#contact">联系</a></nav>
+    <div class="tools">
+      <button class="ib mono" id="gridBtn" aria-pressed="false" title="显示网格 (G)" aria-label="显示 12 栏网格">#</button>
+      <button class="ib" id="themeBtn" aria-label="切换深浅色" title="切换深浅色">◐</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="hero wrap">
+  <div class="grid">
+    <div class="meta mono mute"><span>作品集 2016—2026</span><span>N°031 版</span><span>可预约：2026 年 11 月起</span></div>
+    <h1 class="name" id="name" aria-label="Lu Bai"><span class="ln" aria-hidden="true">LU</span><span class="ln" aria-hidden="true">BAI.</span></h1>
+    <div class="blobbox" id="blobbox">
+      <div class="shadow"></div>
+      <canvas id="blob" aria-label="可拖动旋转的液态金属雕塑"></canvas>
+      <div class="lab mono mute">OBJ. 01 — 液态铬<br>拖动旋转 · 悬停按压</div>
+      <div class="lab2 mono mute" id="blobStat">FPS — · 顶点 37,249</div>
+    </div>
+    <div class="intro">
+      <p class="big">我设计字体，也用字体设计海报。相信<em>网格</em>是自由的前提，而不是束缚。</p>
+      <p class="mute">前 Pentagram 柏林办公室字体设计师，2022 年回到上海开设独立工作室。作品包括「白体」无衬线家族、上海双年展视觉系统与 60 余张实验海报。</p>
+      <p class="mute">客户有 Apple、Kvadrat、MUJI、UCCA 尤伦斯当代艺术中心。偶尔在同济大学教一门关于网格系统的课。</p>
+    </div>
+    <div class="acts">
+      <a class="btn mag" href="#index">浏览作品索引 <span class="arr">→</span></a>
+      <a class="btn line mag" href="#tester">试用白体 <span class="arr">→</span></a>
+    </div>
+  </div>
+</div>
+
+<div class="mq" aria-label="合作客户"><div class="tk" id="mq"></div></div>
+
+<section class="wrap" id="index">
+  <div class="grid">
+    <div class="sh"><span class="no">01</span><h2 class="split">Index<span class="cn">作品索引</span></h2><p>十年里做过的 8 件代表作。悬停预览海报，点击展开细节；可按类别筛选、按年份排序。</p></div>
+    <div class="ctl" role="group" aria-label="筛选">
+      <button class="pill" aria-pressed="true" data-f="all">全部<span class="n"></span></button>
+      <button class="pill" aria-pressed="false" data-f="字体">字体<span class="n"></span></button>
+      <button class="pill" aria-pressed="false" data-f="视觉系统">视觉系统<span class="n"></span></button>
+      <button class="pill" aria-pressed="false" data-f="海报">海报<span class="n"></span></button>
+      <button class="pill" aria-pressed="false" data-f="书籍">书籍<span class="n"></span></button>
+      <span class="sp"></span>
+      <button class="pill mono" id="sortBtn" aria-pressed="false">年份 ↓</button>
+    </div>
+    <div class="idx"><div class="idxbody" id="idx"></div></div>
+  </div>
+</section>
+
+<section class="wrap" id="tester">
+  <div class="grid">
+    <div class="sh"><span class="no">02</span><h2 class="split">Bai Grotesk<span class="cn">白体 · 可变字体测试器</span></h2><p>一款宽度与字重双轴可变的无衬线体（此处以 Archivo 演示）。直接在预览区打字，拖动滑块调参数。</p></div>
+    <div class="tester">
+      <div class="tctl">
+        <div class="sl"><label class="mono" for="tW">字重 wght<output id="oW">720</output></label><input type="range" id="tW" min="100" max="900" value="720"></div>
+        <div class="sl"><label class="mono" for="tS">宽度 wdth<output id="oS">88</output></label><input type="range" id="tS" min="62" max="125" value="88"></div>
+        <div class="sl"><label class="mono" for="tZ">字号 size<output id="oZ">120px</output></label><input type="range" id="tZ" min="24" max="220" value="120"></div>
+        <div class="sl"><label class="mono" for="tT">字距 track<output id="oT">-30</output></label><input type="range" id="tT" min="-80" max="200" value="-30"></div>
+        <div><div class="mono mute" style="margin-bottom:6px">大小写</div><div class="segm" id="caseSeg"><span class="ind"></span><button aria-pressed="true" data-c="none">Aa</button><button aria-pressed="false" data-c="uppercase">AA</button><button aria-pressed="false" data-c="lowercase">aa</button></div></div>
+        <div><div class="mono mute" style="margin-bottom:6px">对齐</div><div class="segm" id="alignSeg"><span class="ind"></span><button aria-pressed="true" data-a="left">左</button><button aria-pressed="false" data-a="center">中</button><button aria-pressed="false" data-a="right">右</button></div></div>
+        <div><div class="mono mute" style="margin-bottom:8px">配色</div><div class="sws" id="sws"></div></div>
+        <button class="btn line" id="randBtn" style="justify-content:center">随机一组参数 ↻</button>
+      </div>
+      <div class="tview" id="tview">
+        <div class="bar mono mute"><span id="tinfo">wght 720 · wdth 88</span><span>点击下方文字即可编辑</span></div>
+        <p id="tprev" contenteditable="true" spellcheck="false" role="textbox" aria-label="字体预览文字，可编辑">Grid is Freedom 0123</p>
+        <div class="glyphbig"><b id="gb">R</b><div class="mono mute"><span id="gbu">U+0052</span><span>拉丁大写字母 · 白体 Black</span><span>悬停下方字符查看</span></div></div>
+        <div class="glyphs" id="glyphs"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="posters">
+  <div class="grid">
+    <div class="sh"><span class="no">03</span><h2 class="split">Posters<span class="cn">实验海报</span></h2><p>每周一张，只用两种颜色和一套 12 栏网格。按住拖动、或用箭头按钮浏览。</p></div>
+    <div class="car">
+      <div class="track" id="track"></div>
+      <div class="carbar"><button class="round" id="prev" aria-label="上一张">←</button><div class="pb"><i id="pbi"></i></div><span class="mono" id="pcount">01 / 06</span><button class="round" id="next" aria-label="下一张">→</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="grid">
+    <div class="sh"><span class="no">04</span><h2 class="split">Numbers<span class="cn">一些数字</span></h2><p>字体设计是慢工。以下数字截至 2026 年 9 月。</p></div>
+    <div class="stats" id="stats">
+      <div><b data-n="14208">0</b><span class="mono mute">绘制的字形</span></div>
+      <div><b data-n="63">0</b><span class="mono mute">实验海报</span></div>
+      <div><b data-n="2">0</b><span class="mono mute">发行的字体家族</span></div>
+      <div><b data-n="9">0<sup>★</sup></b><span class="mono mute">TDC / ADC 奖项</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="services">
+  <div class="grid">
+    <div class="sh"><span class="no">05</span><h2 class="split">Services<span class="cn">服务与报价</span></h2><p>报价为起价，含两轮修改。定制字体按字符集规模另议。</p></div>
+    <div class="svc">
+      <details open><summary><h3>定制字体</h3><span class="mono mute">¥ 180,000 起</span><span class="ic">+</span></summary>
+        <div class="bd"><p>为品牌设计专属字体，从草图、骨架到 OpenType 特性与 hinting。拉丁 + 简体中文 GB2312 常用字。</p><ul class="mono"><li><span>周期</span><span>16–40 周</span></li><li><span>字重</span><span>2–6 个</span></li><li><span>交付</span><span>OTF / WOFF2 / 变量字体</span></li></ul></div></details>
+      <details><summary><h3>视觉识别系统</h3><span class="mono mute">¥ 90,000 起</span><span class="ic">+</span></summary>
+        <div class="bd"><p>以网格和字体为核心的识别系统：标志、版式规范、动态规则，以及一本可以真正被使用的手册。</p><ul class="mono"><li><span>周期</span><span>8–12 周</span></li><li><span>交付</span><span>手册 + Figma 组件库</span></li></ul></div></details>
+      <details><summary><h3>海报 / 出版物</h3><span class="mono mute">¥ 12,000 起</span><span class="ic">+</span></summary>
+        <div class="bd"><p>展览海报、书籍装帧与画册设计。偏爱丝网印刷与两色印刷。</p><ul class="mono"><li><span>周期</span><span>2–6 周</span></li><li><span>印刷监制</span><span>包含</span></li></ul></div></details>
+      <details><summary><h3>工作坊</h3><span class="mono mute">¥ 8,000 / 天</span><span class="ic">+</span></summary>
+        <div class="bd"><p>「网格是自由」一日工作坊，适合设计团队与院校，最多 24 人。</p><ul class="mono"><li><span>时长</span><span>6 小时</span></li><li><span>语言</span><span>中文 / English / Deutsch</span></li></ul></div></details>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="grid">
+    <div class="quote">
+      <div class="qm" aria-hidden="true">“</div>
+      <div class="qb" aria-live="polite"><blockquote id="qt"></blockquote><cite class="mono" id="qc"></cite></div>
+      <div class="qn"><span class="count" id="qn">1/3</span><div style="display:flex;gap:8px"><button class="round" id="qp" aria-label="上一条">←</button><button class="round" id="qx" aria-label="下一条">→</button></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="contact" style="border-bottom:0">
+  <div class="grid">
+    <span class="mono mute" style="grid-column:1/13;margin-bottom:12px">06 — 联系 · 点击复制邮箱</span>
+    <button class="mail" id="mail"><span>studio@lubai.type</span></button>
+    <div class="cgrid">
+      <div><div class="mono mute">工作室</div><p style="margin:.4em 0 0">上海市徐汇区 永嘉路 3xx 号 2F<br>周二至周六 10:00–19:00，来访请预约</p></div>
+      <div><div class="mono mute">社交</div><p style="margin:.4em 0 0"><a href="https://www.instagram.com" target="_blank" rel="noopener">Instagram ↗</a><br><a href="https://www.behance.net" target="_blank" rel="noopener">Behance ↗</a></p></div>
+      <form id="news" novalidate>
+        <label class="mono mute" for="nmail">字体发布通讯 · 每季度一封</label>
+        <div class="news"><input id="nmail" type="email" placeholder="你的邮箱" autocomplete="email"><button type="submit">订阅 →</button></div>
+        <div class="hint mono" id="nhint"></div>
+        <label class="check"><input type="checkbox" id="nfree" checked>同时接收免费字体试用版</label>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="wrap mono mute"><div class="grid" style="border-top:1.5px solid var(--ink);padding-top:18px"><span>© 2026 陆白工作室</span><span>按 G 显示 12 栏网格</span><span style="text-align:right">设置字体：Archivo / Noto Sans SC</span></div></footer>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const root = document.documentElement;
+const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+
+function toast(msg) {
+  const el = document.createElement('div'); el.className = 'toast'; el.innerHTML = '<i></i><span></span>'; el.querySelector('span').textContent = msg;
+  $('#toasts').append(el); setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 2800);
+}
+
+/* ---------- hero variable letters ---------- */
+const nameEl = $('#name');
+$$('.ln', nameEl).forEach(ln => { const t = ln.textContent; ln.textContent = ''; [...t].forEach(ch => { const s = document.createElement('span'); s.className = 'ch' + (ch === '.' ? ' pt' : ''); s.textContent = ch; ln.append(s); }); });
+const chars = $$('.ch', nameEl);
+let hx = -9999, hy = -9999;
+addEventListener('pointermove', e => { hx = e.clientX; hy = e.clientY; });
+chars.forEach(c => { c._w = 100; c._g = 800; });
+function lettersTick() {
+  chars.forEach(c => {
+    const r = c.getBoundingClientRect(); const d = Math.hypot(hx - (r.left + r.width / 2), hy - (r.top + r.height / 2));
+    const k = Math.max(0, 1 - d / 380);
+    const tw = 100 + k * 25 - (1 - k) * 0, tg = 800 - k * 650;
+    c._w += (tw - c._w) * .12; c._g += (tg - c._g) * .12;
+    c.style.fontVariationSettings = `"wdth" ${c._w.toFixed(1)},"wght" ${c._g.toFixed(0)}`;
+  });
+  requestAnimationFrame(lettersTick);
+}
+if (!reduce) lettersTick();
+
+/* ---------- liquid chrome blob ---------- */
+const cv = $('#blob'), box = $('#blobbox');
+let renderer = null;
+try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); renderer.outputEncoding = THREE.sRGBEncoding; renderer.toneMapping = THREE.ACESFilmicToneMapping; } catch (e) { cv.replaceWith(Object.assign(document.createElement('div'), { className: 'mono mute', textContent: '此设备不支持 WebGL' })); }
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, .1, 50); camera.position.set(0, 0, 6.2);
+let envRT = null;
+function buildEnv() {
+  if (!renderer) return;
+  const dark = isDark();
+  const es = new THREE.Scene();
+  const bgc = new THREE.Color(dark ? '#0d0d0c' : '#e6e5df');
+  es.background = bgc;
+  const add = (w, h, color, pos, rot, intensity = 1) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(intensity), side: THREE.DoubleSide }));
+    m.position.set(...pos); m.lookAt(0, 0, 0); if (rot) m.rotateZ(rot); es.add(m);
+  };
+  add(6, 1.2, '#ffffff', [0, 6, 2], 0, 4);
+  add(1.2, 8, '#ffffff', [-6, 1, 1], 0, 3);
+  add(3, 5, '#ff3d00', [6, 0, -1], 0, 1.1);
+  add(10, 3, dark ? '#222220' : '#111110', [0, -6, 0], 0, 1);
+  add(2, 2, '#ffffff', [2, 2, 6], .6, 2.5);
+  add(8, 1, dark ? '#4a4a46' : '#ffffff', [0, 1, -7], 0, 1.4);
+  const pm = new THREE.PMREMGenerator(renderer);
+  const rt = pm.fromScene(es, .035);
+  if (envRT) envRT.dispose(); envRT = rt; pm.dispose();
+  if (mat) { mat.envMap = rt.texture; mat.color.set(dark ? '#d9d9d6' : '#ffffff'); mat.needsUpdate = true; }
+}
+const U = { uTime: { value: 0 }, uAmp: { value: .28 }, uDent: { value: new THREE.Vector3(0, 0, 1) }, uDentAmt: { value: 0 } };
+const mat = new THREE.MeshPhysicalMaterial({ color: '#ffffff', metalness: 1, roughness: .07, clearcoat: 1, clearcoatRoughness: .08, envMapIntensity: 1.25 });
+mat.onBeforeCompile = sh => {
+  Object.assign(sh.uniforms, U);
+  sh.vertexShader = `uniform float uTime;uniform float uAmp;uniform vec3 uDent;uniform float uDentAmt;
+vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}
+float snoise(vec3 v){const vec2 C=vec2(1./6.,1./3.);const vec4 D=vec4(0.,.5,1.,2.);
+vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);
+vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;i=mod289(i);
+vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+float n_=.142857142857;vec3 ns=n_*D.wyz-D.xzx;vec4 j=p-49.*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.*x_);
+vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.-abs(x)-abs(y);vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);
+vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;vec4 sh=-step(h,vec4(0.));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);
+vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;
+return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}
+vec3 disp(vec3 p){vec3 n=normalize(p);
+ float a=snoise(n*.62+vec3(0.,uTime*.22,uTime*.13))*uAmp;
+ float b=snoise(n*1.45-vec3(uTime*.18))*uAmp*.22;
+ float dd=uDentAmt*pow(max(dot(n,uDent),0.),6.);
+ return n*(1.+a+b-dd*.38);}
+` + sh.vertexShader.replace('#include <beginnormal_vertex>', `
+ vec3 dp=disp(position);vec3 nn=normalize(position);
+ vec3 tg=normalize(cross(nn,abs(nn.y)<.99?vec3(0.,1.,0.):vec3(1.,0.,0.)));vec3 bt=normalize(cross(nn,tg));
+ vec3 pA=disp(nn+tg*.012);vec3 pB=disp(nn+bt*.012);
+ vec3 objectNormal=normalize(cross(pA-dp,pB-dp));`).replace('#include <begin_vertex>', 'vec3 transformed=dp;');
+};
+const blob = new THREE.Mesh(new THREE.SphereGeometry(1, 192, 192), mat);
+scene.add(blob);
+const hit = new THREE.Mesh(new THREE.SphereGeometry(1.05, 24, 16), new THREE.MeshBasicMaterial({ visible: false }));
+blob.add(hit);
+buildEnv();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', buildEnv);
+
+function sizeBlob() {
+  if (!renderer) return;
+  const r = box.getBoundingClientRect(); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(r.width, r.height, false);
+  camera.aspect = r.width / r.height; camera.updateProjectionMatrix();
+  camera.position.z = r.width < 500 ? 7.4 : 6.2;
+}
+addEventListener('resize', sizeBlob); sizeBlob();
+
+// interaction: drag rotate w/ inertia, hover dent
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+let drag = false, lx = 0, ly = 0, vx = .004, vy = 0, hover = false, dentTarget = 0;
+const localDent = new THREE.Vector3(0, 0, 1);
+cv.addEventListener('pointerdown', e => { drag = true; lx = e.clientX; ly = e.clientY; cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointerup', () => drag = false);
+cv.addEventListener('pointerleave', () => { hover = false; });
+cv.addEventListener('pointermove', e => {
+  const r = cv.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  if (drag) { vy = (e.clientX - lx) * .006; vx = (e.clientY - ly) * .006; lx = e.clientX; ly = e.clientY; }
+  ray.setFromCamera(ndc, camera);
+  const h = ray.intersectObject(hit)[0];
+  hover = !!h;
+  if (h) { localDent.copy(blob.worldToLocal(h.point.clone())).normalize(); }
+});
+cv.addEventListener('dblclick', () => { U.uAmp.value = .6; toast('液态铬：激活'); });
+
+let t = 0, last = performance.now(), fpsAcc = 0, fpsN = 0, visible = true;
+new IntersectionObserver(es => visible = es[0].isIntersecting).observe(box);
+function loop(now) {
+  const dt = Math.min((now - last) / 1000, .05); last = now;
+  if (renderer && visible) {
+    t += reduce ? dt * .15 : dt;
+    U.uTime.value = t;
+    U.uAmp.value += (.28 - U.uAmp.value) * .02;
+    dentTarget = hover && !drag ? 1 : 0;
+    U.uDentAmt.value += (dentTarget - U.uDentAmt.value) * .08;
+    U.uDent.value.lerp(localDent, .2).normalize();
+    blob.rotation.y += vy; blob.rotation.x += vx;
+    if (!drag) { vy += (.004 - vy) * .03; vx *= .94; }
+    const sc = Math.max(.5, 1 - Math.max(0, scrollY) / 1600);
+    blob.scale.setScalar(sc); blob.position.y = Math.sin(t * .8) * .06;
+    renderer.render(scene, camera);
+    fpsAcc += dt; fpsN++;
+    if (fpsAcc > 1) { $('#blobStat').textContent = `FPS ${Math.round(fpsN / fpsAcc)} · 顶点 37,249 · 双击激活`; fpsAcc = 0; fpsN = 0; }
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ---------- theme + grid ---------- */
+$('#themeBtn').onclick = () => { root.dataset.theme = isDark() ? 'light' : 'dark'; buildEnv(); toast(isDark() ? '已切换为深色' : '已切换为浅色'); };
+const gov = $('#gov'), gridBtn = $('#gridBtn');
+const toggleGrid = () => { const on = gov.classList.toggle('on'); gridBtn.setAttribute('aria-pressed', on); };
+gridBtn.onclick = toggleGrid;
+addEventListener('keydown', e => { if (e.key.toLowerCase() === 'g' && !e.target.closest('input,textarea,[contenteditable]')) toggleGrid(); });
+
+/* ---------- marquee ---------- */
+const clients = ['Apple', 'Kvadrat', 'MUJI', 'UCCA', 'Shanghai Biennale', 'Vitra', '单向街', 'Monocle'];
+$('#mq').innerHTML = [...clients, ...clients].map(c => `<span>${c} <b>✳</b></span>`).join('');
+
+/* ---------- posters ---------- */
+function poster(i) {
+  const d = document.createElement('div'); d.className = 'poster p' + (i + 1);
+  const P = [
+    () => `<span class="n">7</span>${[12, 16, 20].map(y => `<span class="r" style="top:${y * 4.6}cqw"></span>`).join('')}<span class="cap">Grid Systems<br>Lecture No.7</span><span class="cap2">TONGJI<br>2026.03</span>`,
+    () => `<span class="c"></span><span class="t">SOLAR<br>RED</span><span class="cap" style="color:#ebeae5">Kvadrat · Textile<br>Exhibition</span><span class="cap2" style="color:#ebeae5">MILANO<br>04—09</span>`,
+    () => { let s = ''; for (let y = 0; y < 5; y++) for (let x = 0; x < 4; x++) s += `<span class="d" style="left:${8 + x * 22}cqw;top:${12 + y * 22}cqw;${x === 2 && y === 3 ? 'background:#ff3d00' : ''}"></span>`; return s + '<span class="cap">1 out of 20<br>The Odd One</span>'; },
+    () => [...Array(9)].map((_, k) => `<span class="s" style="top:${6 + k * 11.2}cqw;font-weight:${100 + k * 100};font-stretch:${62 + k * 7}%">KONKRET</span>`).join('') + '<span class="cap2">Bai Grotesk<br>9 weights</span>',
+    () => `<span class="bar"></span><span class="t">上海<br>ZÜRICH<br>1957—2026</span><span class="cap">Swiss Style<br>in Shanghai</span>`,
+    () => [88, 70, 52, 34, 16].map((w, k) => `<span class="q${k === 2 ? ' r' : ''}" style="width:${w}cqw;height:${w}cqw"></span>`).join('') + '<span class="cap" style="color:#ebeae5">Squares<br>Study 05</span>',
+  ];
+  d.innerHTML = P[i % 6](); return d;
+}
+
+/* ---------- index ---------- */
+const WORK = [
+  ['白体 Bai Grotesk', '自主发行', '字体', 2025, '双轴可变无衬线体，9 个字重 × 5 个宽度，含 7,200 个简体中文字形。', ['7,200', '字形'], ['45', '样式'], 3],
+  ['上海双年展 第 15 届', '上海当代艺术博物馆', '视觉系统', 2025, '以「潮汐」为题的动态视觉系统，网格随展期每天偏移 1 栏。', ['183', '天'], ['1', '套网格'], 4],
+  ['网格讲座系列', '同济大学', '海报', 2026, '为 12 节网格课各做一张海报，全部只用黑与红。', ['12', '张海报'], ['2', '种颜色'], 0],
+  ['Kvadrat 米兰展', 'Kvadrat', '海报', 2024, '纺织品展的系列海报与展签，丝网印刷 500 份。', ['500', '份丝印'], ['6', '周'], 1],
+  ['MUJI 中文标识字体', 'MUJI 无印良品', '字体', 2023, '为中国区门店设计的标识专用黑体，强调在 3 米外的可读性。', ['3,500', '常用字'], ['2', '字重'], 3],
+  ['《网格即自由》', '上海人民美术出版社', '书籍', 2023, '关于瑞士平面设计在上海的 70 年，296 页，瑞士装。', ['296', '页'], ['2', '次印刷'], 4],
+  ['UCCA 年度报告', 'UCCA', '书籍', 2022, '用数据图表重新组织年报，所有图形都对齐 8pt 基线网格。', ['8pt', '基线'], ['64', '张图表'], 2],
+  ['Vitra 椅子标签', 'Vitra', '视觉系统', 2021, '为 40 把经典椅子设计的一套展签与编号系统。', ['40', '把椅子'], ['1', '种字体'], 5],
+];
+let filter = 'all', asc = false;
+const idx = $('#idx'), peek = $('#peek');
+function renderIndex() {
+  const list = WORK.map((w, i) => ({ w, i })).filter(o => filter === 'all' || o.w[2] === filter).sort((a, b) => asc ? a.w[3] - b.w[3] : b.w[3] - a.w[3]);
+  idx.innerHTML = '';
+  list.forEach(({ w, i }, k) => {
+    const row = document.createElement('div'); row.className = 'row'; row.tabIndex = 0; row.setAttribute('role', 'button'); row.setAttribute('aria-expanded', 'false');
+    row.innerHTML = `<span class="mono mute">${String(k + 1).padStart(3, '0')}</span><h3>${w[0]}</h3><span class="c3 mute">${w[1]}</span><span class="c4 mono">${w[2]}</span><span class="c5 mono">${w[3]}</span><span class="pl">+</span>`;
+    const det = document.createElement('div'); det.className = 'detail';
+    det.innerHTML = `<div><div class="dc"><span></span><p>${w[4]}</p><div class="facts">${[w[5], w[6]].map(f => `<div><b>${f[0]}</b><span class="mono mute">${f[1]}</span></div>`).join('')}</div></div></div>`;
+    const toggle = () => { const o = det.classList.toggle('open'); row.setAttribute('aria-expanded', o); };
+    row.onclick = toggle; row.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
+    row.onmouseenter = () => { peek.innerHTML = ''; peek.append(poster(w[7])); peek.classList.add('on'); dot.classList.add('big'); };
+    row.onmouseleave = () => { peek.classList.remove('on'); dot.classList.remove('big'); };
+    idx.append(row, det);
+  });
+  $$('.ctl .pill[data-f]').forEach(p => { p.querySelector('.n').textContent = p.dataset.f === 'all' ? WORK.length : WORK.filter(w => w[2] === p.dataset.f).length; });
+}
+$$('.ctl .pill[data-f]').forEach(p => p.onclick = () => { filter = p.dataset.f; $$('.ctl .pill[data-f]').forEach(x => x.setAttribute('aria-pressed', x === p)); renderIndex(); });
+$('#sortBtn').onclick = e => { asc = !asc; e.currentTarget.textContent = asc ? '年份 ↑' : '年份 ↓'; e.currentTarget.setAttribute('aria-pressed', asc); renderIndex(); };
+renderIndex();
+let px = 0, py = 0, ppx = 0, ppy = 0;
+addEventListener('pointermove', e => { px = e.clientX; py = e.clientY; });
+
+/* ---------- carousel ---------- */
+const track = $('#track');
+const PN = ['Lecture No.7', 'Solar Red', 'The Odd One', 'Konkret', 'Swiss in Shanghai', 'Squares 05'];
+PN.forEach((n, i) => { const f = document.createElement('figure'); f.className = 'it'; f.style.margin = 0; f.append(poster(i)); f.insertAdjacentHTML('beforeend', `<figcaption class="mono"><span>${n}</span><span class="mute">N°${String(58 - i).padStart(3, '0')}</span></figcaption>`); track.append(f); });
+let down = false, sx = 0, sl = 0, moved = 0;
+track.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; down = true; moved = 0; sx = e.clientX; sl = track.scrollLeft; track.classList.add('drag'); });
+addEventListener('pointerup', () => { if (!down) return; down = false; track.classList.remove('drag'); });
+addEventListener('pointermove', e => { if (!down) return; moved = Math.abs(e.clientX - sx); track.scrollLeft = sl - (e.clientX - sx) * 1.2; });
+const itemW = () => track.querySelector('.it').offsetWidth + parseFloat(getComputedStyle(track).columnGap || 16);
+$('#prev').onclick = () => track.scrollBy({ left: -itemW(), behavior: 'smooth' });
+$('#next').onclick = () => track.scrollBy({ left: itemW(), behavior: 'smooth' });
+function carProg() {
+  const max = track.scrollWidth - track.clientWidth; const k = max > 0 ? track.scrollLeft / max : 0;
+  const vis = track.clientWidth / track.scrollWidth;
+  $('#pbi').style.width = vis * 100 + '%'; $('#pbi').style.left = k * (1 - vis) * 100 + '%';
+  $('#pcount').textContent = String(Math.min(PN.length, Math.round(k * (PN.length - 1)) + 1)).padStart(2, '0') + ' / ' + String(PN.length).padStart(2, '0');
+}
+track.addEventListener('scroll', carProg); addEventListener('resize', carProg); carProg();
+
+/* ---------- type tester ---------- */
+const tt = $('#tprev'), tv = $('#tview');
+const T = { w: $('#tW'), s: $('#tS'), z: $('#tZ'), tr: $('#tT') };
+const fill = el => el.style.setProperty('--p', (el.value - el.min) / (el.max - el.min) * 100 + '%');
+function applyT() {
+  tt.style.fontVariationSettings = `"wght" ${T.w.value},"wdth" ${T.s.value}`;
+  tt.style.fontSize = `min(${T.z.value}px, 15vw)`; tt.style.letterSpacing = T.tr.value / 1000 + 'em';
+  $('#oW').textContent = T.w.value; $('#oS').textContent = T.s.value; $('#oZ').textContent = T.z.value + 'px'; $('#oT').textContent = T.tr.value;
+  $('#tinfo').textContent = `wght ${T.w.value} · wdth ${T.s.value} · ${T.z.value}px`;
+  Object.values(T).forEach(fill);
+}
+Object.values(T).forEach(el => el.oninput = applyT); applyT();
+function segm(id, cb) {
+  const s = $('#' + id), ind = $('.ind', s);
+  const place = () => { const b = $('button[aria-pressed="true"]', s); ind.style.left = b.offsetLeft + 'px'; ind.style.width = b.offsetWidth + 'px'; };
+  $$('button', s).forEach(b => b.onclick = () => { $$('button', s).forEach(x => x.setAttribute('aria-pressed', x === b)); place(); cb(b); });
+  addEventListener('resize', place); setTimeout(place, 50); place();
+}
+segm('caseSeg', b => tt.style.textTransform = b.dataset.c);
+segm('alignSeg', b => tt.style.textAlign = b.dataset.a);
+const SW = [['墨/纸', 'var(--card)', 'var(--ink)'], ['红/墨', '#111110', '#ff3d00'], ['纸/红', '#ff3d00', '#111110'], ['纸/墨', '#111110', '#ebeae5']];
+SW.forEach((s, i) => { const b = document.createElement('button'); b.style.background = `linear-gradient(135deg,${s[1]} 50%,${s[2]} 50%)`; b.setAttribute('aria-label', s[0]); b.title = s[0]; b.setAttribute('aria-pressed', i === 0); b.onclick = () => { $$('#sws button').forEach(x => x.setAttribute('aria-pressed', x === b)); tv.style.background = s[1]; tv.style.color = s[2]; }; $('#sws').append(b); });
+$('#randBtn').onclick = () => {
+  const r = (a, b) => Math.round(a + Math.random() * (b - a));
+  const targets = { w: r(100, 900), s: r(62, 125), z: r(60, 200), tr: r(-60, 80) };
+  const from = Object.fromEntries(Object.keys(T).map(k => [k, +T[k].value])); const t0 = performance.now();
+  const step = n => { const k = Math.min((n - t0) / 600, 1), e = 1 - Math.pow(1 - k, 3); Object.keys(T).forEach(key => T[key].value = Math.round(from[key] + (targets[key] - from[key]) * e)); applyT(); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+};
+const G = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&?!@→ß';
+[...G].forEach(g => { const b = document.createElement('button'); b.textContent = g; b.setAttribute('aria-label', '字形 ' + g);
+  const show = () => { $('#gb').textContent = g; $('#gbu').textContent = 'U+' + g.codePointAt(0).toString(16).toUpperCase().padStart(4, '0'); };
+  b.onmouseenter = show; b.onfocus = show; b.onclick = () => { tt.textContent += g; }; $('#glyphs').append(b); });
+
+/* ---------- stats counter, split headings ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return; const el = e.target; io.unobserve(el);
+  if (el.id === 'stats') $$('b[data-n]', el).forEach(b => { const to = +b.dataset.n, sup = b.querySelector('sup'), t0 = performance.now(); const st = n => { const k = Math.min((n - t0) / 1600, 1); b.firstChild.textContent = Math.round(to * (1 - Math.pow(1 - k, 4))).toLocaleString('en'); if (k < 1) requestAnimationFrame(st); }; requestAnimationFrame(st); });
+  if (el.classList.contains('split')) el.classList.remove('pre');
+}), { threshold: .3 });
+io.observe($('#stats'));
+$$('.split').forEach(h => {
+  const first = h.firstChild; const words = first.textContent.split(' ');
+  const frag = document.createDocumentFragment();
+  words.forEach((w, i) => { const o = document.createElement('span'); o.className = 'w'; const n = document.createElement('span'); n.textContent = w + (i < words.length - 1 ? ' ' : ''); n.style.transitionDelay = i * 80 + 'ms'; o.append(n); frag.append(o); });
+  h.replaceChild(frag, first);
+  if (!reduce && h.getBoundingClientRect().top > innerHeight) { h.classList.add('pre'); io.observe(h); }
+});
+
+/* ---------- quotes ---------- */
+const Q = [
+  ['陆白把网格当作一种语言来使用，而不是一张需要填满的表格。双年展的视觉因此每天都在呼吸。', '— 周若，上海双年展 策展人'],
+  ['我们要的是一款在门店 3 米外依然清晰的中文字体，他交付的远超预期。', '— 佐藤 健，MUJI 视觉总监'],
+  ['他的课让学生第一次意识到：约束会让人更自由。', '— 同济大学 设计创意学院'],
+];
+let qi = 0;
+function showQ(n) { const bq = $('#qt'); bq.classList.add('fade'); setTimeout(() => { qi = (n + Q.length) % Q.length; bq.textContent = Q[qi][0]; $('#qc').textContent = Q[qi][1]; $('#qn').textContent = `${qi + 1}/${Q.length}`; bq.classList.remove('fade'); }, 300); }
+$('#qt').textContent = Q[0][0]; $('#qc').textContent = Q[0][1];
+$('#qp').onclick = () => showQ(qi - 1); $('#qx').onclick = () => showQ(qi + 1);
+let qTimer = setInterval(() => showQ(qi + 1), 7000);
+$('.quote').addEventListener('pointerenter', () => clearInterval(qTimer));
+
+/* ---------- contact ---------- */
+$('#mail').onclick = () => {
+  const t = 'studio@lubai.type';
+  try { navigator.clipboard.writeText(t).then(() => toast('邮箱已复制：' + t), () => toast('复制失败，请手动选择：' + t)); } catch (e) { toast('请手动复制：' + t); }
+};
+$('#news').onsubmit = e => {
+  e.preventDefault(); const v = $('#nmail').value.trim(), h = $('#nhint');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { h.textContent = '请填写有效邮箱，例如 name@studio.com'; h.className = 'hint mono err'; $('#nmail').focus(); return; }
+  h.textContent = '演示页面：未实际订阅。'; h.className = 'hint mono mute'; toast('已记下 ' + v + '（演示）'); e.target.reset();
+};
+
+/* ---------- clock, progress, cursor, magnetic ---------- */
+const clk = () => $('#clock').textContent = new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false });
+clk(); setInterval(clk, 1000);
+addEventListener('scroll', () => { const h = document.documentElement.scrollHeight - innerHeight; $('#prog').style.width = (h > 0 ? scrollY / h * 100 : 0) + '%'; }, { passive: true });
+const dot = $('#dot'); let dx = 0, dy = 0;
+addEventListener('pointermove', e => { dot.style.opacity = 1; if (e.target.closest && !e.target.closest('.row')) dot.classList.toggle('big', !!e.target.closest('a,button,summary,.glyphs button')); }, { passive: true });
+(function tick() {
+  dx += (px - dx) * .2; dy += (py - dy) * .2; dot.style.transform = `translate(${dx}px,${dy}px)`;
+  ppx += (px - ppx) * .14; ppy += (py - ppy) * .14; peek.style.left = ppx + 24 + 'px'; peek.style.top = ppy - 140 + 'px';
+  requestAnimationFrame(tick);
+})();
+$$('.btn.mag, .round').forEach(b => {
+  b.addEventListener('pointermove', e => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .25}px,${(e.clientY - r.top - r.height / 2) * .35}px)`; });
+  b.addEventListener('pointerleave', () => b.style.transform = '');
+});
+})();
+</script>

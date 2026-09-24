@@ -1,0 +1,22 @@
+html, body { margin: 0; height: 100%; overflow: hidden; background: #1a2029; font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif; }
+#stage { position: fixed; inset: 0; }
+#stage canvas { display: block; width: 100%; height: 100%; }
+#loading { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: #d8d2c4; font-size: 14px; letter-spacing: .08em; background: #1a2029; transition: opacity .6s; }
+#loading .bar { width: 180px; height: 6px; background: #2c3440; border-radius: 3px; overflow: hidden; }
+#loading .bar i { display: block; height: 100%; width: 40%; background: #c9a45a; animation: ld 1.1s ease-in-out infinite; }
+@keyframes ld { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+#loading.done { opacity: 0; pointer-events: none; }
+#hud { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; width: min(420px, calc(100vw - 32px)); transition: opacity .4s; }
+#hud.hidden { opacity: 0; pointer-events: none; }
+#hud.idle { opacity: .25; }
+#hud:hover { opacity: 1; }
+#progress { position: relative; width: 100%; height: 4px; background: rgba(255,255,255,.14); border-radius: 2px; }
+#progFill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #e9c46a; border-radius: 2px; }
+#marks i { position: absolute; top: -3px; width: 2px; height: 10px; background: rgba(255,255,255,.35); }
+#controls { display: flex; align-items: center; gap: 8px; background: rgba(20,24,30,.55); padding: 6px 10px; border-radius: 999px; backdrop-filter: blur(6px); }
+#controls button { width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.1); color: #f1ece0; font-size: 14px; cursor: pointer; }
+#controls button:hover { background: rgba(255,255,255,.22); }
+#time { color: #cfc8b8; font: 12px/1 ui-monospace, Menlo, monospace; min-width: 52px; text-align: right; }
+#endcard { position: fixed; top: 7%; left: 50%; transform: translateX(-50%); color: #efe7d4; font-size: 18px; letter-spacing: .5em; text-align: center; text-shadow: 0 1px 8px rgba(0,0,0,.5); transition: opacity 1.2s; }
+#endcard small { display: block; margin-top: 6px; font-size: 11px; letter-spacing: .15em; opacity: .7; }
+#endcard.hidden { opacity: 0; }

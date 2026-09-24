@@ -1,0 +1,818 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>沈霓的霓虹终端</title>
+<meta name="description" content="沈霓 · 创意开发者 · WebGL / 音频可视化 / 交互装置">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=VT323&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#0d0826; --bg2:#170d38; --panel:rgba(18,10,46,.78); --line:rgba(255,46,151,.35);
+  --mag:#ff2e97; --cyan:#1ef2f0; --sun:#ffd35c; --ink:#f1e9ff; --dim:#a497d0; --ok:#5cffb0; --warn:#ffd35c; --err:#ff5470;
+  --display:"Chakra Petch","Noto Sans SC",system-ui,sans-serif;
+  --body:"Noto Sans SC","Chakra Petch",system-ui,sans-serif;
+  --term:"VT323","Noto Sans SC",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font:15px/1.7 var(--body);overflow-x:hidden}
+::selection{background:var(--mag);color:#fff}
+a{color:inherit}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px dashed var(--cyan);outline-offset:3px}
+#scene{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+.crt::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+.crt::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:61;
+  background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.55));}
+.wrap{position:relative;z-index:2;padding-inline:clamp(16px,4vw,56px)}
+.max{max-width:1180px;margin-inline:auto}
+
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:40;padding:calc(env(safe-area-inset-top,0px) + 12px) clamp(16px,4vw,56px) 12px;
+  display:flex;align-items:center;gap:18px;background:linear-gradient(var(--bg),rgba(13,8,38,.0));}
+.logo{font:700 18px/1 var(--display);letter-spacing:.14em;text-decoration:none;display:flex;gap:10px;align-items:center}
+.logo i{width:12px;height:12px;background:var(--mag);box-shadow:0 0 12px var(--mag);transform:rotate(45deg);display:block}
+.nav ul{display:flex;gap:4px;list-style:none;margin:0 0 0 auto;padding:0}
+.nav ul a{font:600 13px/1 var(--display);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;padding:8px 10px;color:var(--dim);position:relative;transition:color .2s}
+.nav ul a:hover,.nav ul a.on{color:var(--ink)}
+.nav ul a.on::after{content:"";position:absolute;left:10px;right:10px;bottom:2px;height:2px;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.kbd{font:400 18px/1 var(--term);border:1px solid var(--line);padding:6px 10px;background:rgba(255,46,151,.08);cursor:pointer;display:flex;gap:8px;align-items:center}
+.kbd:hover{border-color:var(--mag);box-shadow:0 0 14px rgba(255,46,151,.4)}
+@media (max-width:860px){.nav ul{display:none}.kbd{margin-left:auto}}
+
+/* hero */
+.hero{min-height:min(100svh,900px);display:grid;align-content:center;padding-block:120px 80px}
+.chip{display:inline-flex;align-items:center;gap:8px;font:400 20px/1 var(--term);letter-spacing:.06em;color:var(--ok);border:1px solid rgba(92,255,176,.4);padding:6px 12px;background:rgba(92,255,176,.06);width:max-content}
+.chip b{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok);animation:blink 1.4s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+.glitch{font:700 clamp(56px,11vw,150px)/.9 var(--display);letter-spacing:-.01em;margin:22px 0 8px;position:relative;text-transform:uppercase;
+  text-shadow:0 0 18px rgba(255,46,151,.55),0 0 2px #fff}
+.glitch span{display:block}
+.glitch .cn{font:900 clamp(24px,4vw,44px)/1.2 var(--body);letter-spacing:.4em;color:var(--cyan);text-shadow:0 0 14px rgba(30,242,240,.6);margin-bottom:6px}
+.glitch .en{position:relative;display:inline-block}
+.glitch .en::before,.glitch .en::after{content:attr(data-t);position:absolute;inset:0;pointer-events:none}
+.glitch .en::before{color:var(--cyan);transform:translate(3px,0);clip-path:inset(0 0 60% 0);animation:g1 3.2s infinite steps(1);mix-blend-mode:screen}
+.glitch .en::after{color:var(--mag);transform:translate(-3px,0);clip-path:inset(55% 0 0 0);animation:g2 2.7s infinite steps(1);mix-blend-mode:screen}
+@keyframes g1{0%,86%,100%{clip-path:inset(0 0 100% 0)}88%{clip-path:inset(10% 0 60% 0);transform:translate(6px,-2px)}92%{clip-path:inset(40% 0 30% 0);transform:translate(-4px,1px)}96%{clip-path:inset(70% 0 5% 0);transform:translate(3px,0)}}
+@keyframes g2{0%,80%,100%{clip-path:inset(100% 0 0 0)}83%{clip-path:inset(60% 0 10% 0);transform:translate(-6px,2px)}88%{clip-path:inset(20% 0 55% 0);transform:translate(5px,0)}}
+.typer{font:400 clamp(22px,2.6vw,30px)/1.3 var(--term);color:var(--sun);min-height:1.4em;text-shadow:0 0 6px var(--bg),0 0 12px var(--bg)}
+.typer::after{content:"▋";color:var(--mag);animation:blink 1s steps(2) infinite;margin-left:2px}
+.lead{max-width:560px;color:var(--dim);text-shadow:0 1px 8px var(--bg),0 0 2px var(--bg);font-size:16px;margin:14px 0 28px}
+.row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+
+/* buttons */
+.btn{--c:var(--mag);position:relative;display:inline-flex;align-items:center;gap:10px;padding:13px 22px;border:1.5px solid var(--c);background:transparent;color:var(--ink);
+  font:700 14px/1 var(--display);letter-spacing:.16em;text-transform:uppercase;text-decoration:none;cursor:pointer;overflow:hidden;
+  isolation:isolate;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));transition:box-shadow .25s,color .25s,transform .15s}
+.btn::before{content:"";position:absolute;inset:0;background:var(--c);transform:translateX(-101%);transition:transform .35s cubic-bezier(.7,0,.2,1);z-index:-1}
+.btn:hover{color:#10072a;box-shadow:0 0 22px var(--c)}
+.btn:hover::before{transform:none}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn.solid{background:var(--c);color:#10072a}
+.btn.solid::before{background:#fff}
+.btn.cy{--c:var(--cyan)}
+.btn.sun{--c:var(--sun)}
+.btn.ghost{border-style:dashed;--c:var(--dim)}
+.btn.sm{padding:9px 14px;font-size:12px}
+.btn[disabled]{opacity:.4;pointer-events:none}
+
+/* sections */
+section{padding-block:clamp(72px,10vw,120px)}
+.eyebrow{font:400 22px/1 var(--term);color:var(--cyan);letter-spacing:.08em;margin-bottom:10px}
+.eyebrow::before{content:"> "}
+h2{font:700 clamp(32px,5vw,58px)/1.05 var(--display);margin:0 0 18px;text-wrap:balance;text-transform:uppercase}
+h2 small{display:block;font:500 16px/1.4 var(--body);color:var(--dim);letter-spacing:.2em;margin-top:10px;text-transform:none}
+.panel{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);position:relative}
+.panel.corner::before,.panel.corner::after{content:"";position:absolute;width:14px;height:14px;border:2px solid var(--cyan)}
+.panel.corner::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.panel.corner::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+
+/* about */
+.about{display:grid;grid-template-columns:1.1fr 1fr;gap:28px}
+@media (max-width:860px){.about{grid-template-columns:1fr}}
+.about .panel{padding:28px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-top:24px}
+.stat{background:var(--bg2);padding:18px 14px}
+.stat b{display:block;font:700 34px/1 var(--display);color:var(--sun);font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(255,211,92,.4)}
+.stat span{font-size:12px;color:var(--dim);letter-spacing:.1em}
+.skill{margin-bottom:16px}
+.skill header{display:flex;justify-content:space-between;font:600 13px/1 var(--display);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
+.skill header em{font:400 18px/1 var(--term);color:var(--cyan);font-style:normal}
+.cells{display:grid;grid-template-columns:repeat(20,1fr);gap:3px}
+.cells i{height:12px;background:rgba(255,255,255,.07);transition:background .2s,box-shadow .2s}
+.cells i.lit{background:var(--mag);box-shadow:0 0 6px var(--mag)}
+.cells i.lit.hi{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+
+/* work */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
+.fchip{font:400 20px/1 var(--term);padding:7px 14px;border:1px solid var(--line);background:transparent;cursor:pointer;color:var(--dim);transition:.2s}
+.fchip:hover{color:var(--ink);border-color:var(--mag)}
+.fchip[aria-pressed="true"]{background:var(--mag);color:#10072a;border-color:var(--mag);box-shadow:0 0 14px rgba(255,46,151,.5)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media (max-width:980px){.grid3{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:620px){.grid3{grid-template-columns:1fr}}
+.card{perspective:900px;cursor:pointer}
+.card[hidden]{display:none}
+.card .in{transform-style:preserve-3d;transition:transform .15s ease-out;background:var(--panel);border:1px solid var(--line);height:100%;display:flex;flex-direction:column}
+.card:hover .in{border-color:var(--mag);box-shadow:0 20px 50px rgba(255,46,151,.25)}
+.thumb{aspect-ratio:16/10;position:relative;overflow:hidden;border-bottom:1px solid var(--line);max-width:100%}
+.thumb canvas{width:100%;height:100%;display:block}
+.thumb::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.25) 0 1px,transparent 1px 3px);opacity:0;transition:.3s}
+.card:hover .thumb::after{opacity:1}
+.card .meta{padding:18px 18px 20px;transform:translateZ(30px);display:flex;flex-direction:column;gap:8px;flex:1}
+.card h3{font:700 20px/1.2 var(--display);margin:0;letter-spacing:.04em}
+.card p{margin:0;color:var(--dim);font-size:14px;flex:1}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font:400 16px/1 var(--term);padding:3px 8px;border:1px solid rgba(30,242,240,.4);color:var(--cyan)}
+.card .yr{position:absolute;top:10px;right:10px;font:400 18px/1 var(--term);background:rgba(13,8,38,.8);padding:4px 8px;color:var(--sun);z-index:2}
+
+/* terminal */
+.term{font:400 20px/1.35 var(--term);padding:0;overflow:hidden}
+.term .bar{display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);background:rgba(255,46,151,.08)}
+.term .bar i{width:11px;height:11px;border-radius:50%;background:var(--err)}
+.term .bar i:nth-child(2){background:var(--warn)}.term .bar i:nth-child(3){background:var(--ok)}
+.term .bar span{margin-left:auto;color:var(--dim);font-size:17px}
+.term .out{height:340px;overflow-y:auto;padding:14px 18px;white-space:pre-wrap;word-break:break-word}
+.term .out .p{color:var(--mag)}
+.term .out .c{color:var(--cyan)}
+.term .out .y{color:var(--sun)}
+.term .out .g{color:var(--ok)}
+.term .out .d{color:var(--dim)}
+.term form{display:flex;gap:8px;padding:10px 18px 14px;border-top:1px dashed var(--line)}
+.term form label{color:var(--mag);white-space:nowrap}
+.term input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--ink);font:inherit;caret-color:var(--cyan)}
+.suggest{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+
+/* lab */
+.lab{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.lab .panel{padding:22px}
+.lab h4{font:600 13px/1 var(--display);letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin:0 0 16px;display:flex;justify-content:space-between}
+.lab h4 code{font:400 17px/1 var(--term);color:var(--cyan);letter-spacing:0}
+.c4{grid-column:span 4}.c6{grid-column:span 6}.c8{grid-column:span 8}.c12{grid-column:span 12}
+@media (max-width:980px){.c4,.c6,.c8{grid-column:span 6}}
+@media (max-width:640px){.c4,.c6,.c8{grid-column:span 12}}
+.switch{display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:12px;user-select:none}
+.switch input{position:absolute;opacity:0;pointer-events:none}
+.switch .tr{width:50px;height:24px;border:1.5px solid var(--dim);position:relative;transition:.25s;flex:none}
+.switch .tr::after{content:"";position:absolute;top:3px;left:3px;width:15px;height:15px;background:var(--dim);transition:.25s}
+.switch input:checked + .tr{border-color:var(--cyan);box-shadow:0 0 10px rgba(30,242,240,.4)}
+.switch input:checked + .tr::after{left:28px;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.switch input:focus-visible + .tr{outline:2px dashed var(--cyan);outline-offset:3px}
+.range{width:100%;-webkit-appearance:none;appearance:none;height:4px;background:linear-gradient(90deg,var(--mag) var(--p,50%),rgba(255,255,255,.12) var(--p,50%));outline-offset:6px}
+.range::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--bg);border:2px solid var(--mag);transform:rotate(45deg);box-shadow:0 0 10px var(--mag);cursor:pointer}
+.range::-moz-range-thumb{width:16px;height:16px;background:var(--bg);border:2px solid var(--mag);border-radius:0;box-shadow:0 0 10px var(--mag);cursor:pointer}
+.rv{display:flex;justify-content:space-between;font:400 18px/1 var(--term);color:var(--dim);margin-top:10px}
+.rv b{color:var(--sun);font-weight:400}
+.seg{display:flex;border:1px solid var(--line);position:relative}
+.seg button{flex:1;background:transparent;border:0;padding:10px 6px;cursor:pointer;font:600 12px/1 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);position:relative;z-index:1;transition:color .2s}
+.seg button[aria-pressed="true"]{color:#10072a}
+.seg .ind{position:absolute;top:0;bottom:0;background:var(--cyan);box-shadow:0 0 14px var(--cyan);transition:left .3s cubic-bezier(.7,0,.2,1),width .3s}
+.swatches{display:flex;gap:8px;margin-top:14px}
+.swatches i{flex:1;height:26px}
+.ring{--v:72;width:110px;height:110px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--cyan) calc(var(--v)*1%),rgba(255,255,255,.08) 0);position:relative;flex:none}
+.ring::before{content:"";position:absolute;inset:9px;border-radius:50%;background:var(--bg2)}
+.ring b{position:relative;font:700 24px/1 var(--display);font-variant-numeric:tabular-nums}
+.loaders{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.ld1{width:34px;height:34px;border:3px solid rgba(255,46,151,.2);border-top-color:var(--mag);border-radius:50%;animation:spin .8s linear infinite}
+.ld2{display:flex;gap:4px}.ld2 i{width:6px;height:26px;background:var(--cyan);animation:eq 1s ease-in-out infinite}
+.ld2 i:nth-child(2){animation-delay:.1s}.ld2 i:nth-child(3){animation-delay:.2s}.ld2 i:nth-child(4){animation-delay:.3s}.ld2 i:nth-child(5){animation-delay:.4s}
+@keyframes eq{50%{transform:scaleY(.25)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld3{font:400 22px/1 var(--term);color:var(--sun)}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badge{font:600 11px/1 var(--display);letter-spacing:.14em;text-transform:uppercase;padding:6px 9px;border:1px solid currentColor}
+.badge.ok{color:var(--ok)}.badge.warn{color:var(--warn)}.badge.err{color:var(--err)}.badge.info{color:var(--cyan)}
+.badge.fill{background:var(--mag);color:#10072a;border-color:var(--mag)}
+.tip{position:relative;display:inline-block}
+.tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translate(-50%,6px);white-space:nowrap;background:var(--ink);color:var(--bg);padding:6px 10px;font:400 18px/1 var(--term);opacity:0;pointer-events:none;transition:.2s}
+.tip:hover::after,.tip:focus-visible::after{opacity:1;transform:translate(-50%,0)}
+.check{display:flex;gap:10px;align-items:center;margin-bottom:10px;cursor:pointer}
+.check input{appearance:none;-webkit-appearance:none;width:18px;height:18px;border:1.5px solid var(--mag);display:grid;place-items:center;cursor:pointer;margin:0}
+.check input:checked{background:var(--mag);box-shadow:0 0 10px var(--mag)}
+.check input:checked::after{content:"";width:8px;height:4px;border:2px solid #10072a;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.acc details{border-bottom:1px solid var(--line)}
+.acc summary{list-style:none;cursor:pointer;padding:14px 0;display:flex;justify-content:space-between;gap:12px;font:600 15px/1.4 var(--display);letter-spacing:.04em}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::after{content:"+";font:400 26px/1 var(--term);color:var(--mag);transition:transform .25s}
+.acc details[open] summary::after{transform:rotate(45deg)}
+.acc details p{margin:0 0 16px;color:var(--dim);font-size:14px}
+
+/* timeline */
+.tl{position:relative;padding-left:34px}
+.tl::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--mag),var(--cyan))}
+.tli{position:relative;padding:0 0 30px}
+.tli::before{content:"";position:absolute;left:-32px;top:6px;width:14px;height:14px;background:var(--bg);border:2px solid var(--cyan);transform:rotate(45deg);box-shadow:0 0 10px var(--cyan)}
+.tli time{font:400 20px/1 var(--term);color:var(--sun)}
+.tli h3{font:700 20px/1.3 var(--display);margin:4px 0 4px}
+.tli p{margin:0;color:var(--dim);max-width:62ch}
+
+/* contact */
+.contact{display:grid;grid-template-columns:1fr 1.2fr;gap:28px}
+@media (max-width:860px){.contact{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font:400 18px/1 var(--term);color:var(--cyan)}
+.field input,.field textarea,.field select{background:rgba(0,0,0,.35);border:1px solid var(--line);padding:12px 14px;color:var(--ink);outline:0;transition:.2s;border-radius:0}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(30,242,240,.15)}
+.field .err{font:400 17px/1 var(--term);color:var(--err);min-height:1em}
+.field.bad input,.field.bad textarea{border-color:var(--err)}
+.mail{font:400 26px/1.2 var(--term);color:var(--sun);word-break:break-all}
+
+/* marquee + footer */
+.marquee{overflow:hidden;border-block:1px solid var(--line);background:rgba(255,46,151,.08);position:relative;z-index:2}
+.marquee .tk{display:flex;width:max-content;animation:mq 26s linear infinite}
+.marquee span{font:700 22px/1 var(--display);letter-spacing:.2em;padding:16px 26px;white-space:nowrap;text-transform:uppercase}
+.marquee span:nth-child(odd){color:var(--cyan)}
+@keyframes mq{to{transform:translateX(-50%)}}
+footer{position:relative;z-index:2;padding:28px clamp(16px,4vw,56px) calc(28px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font:400 18px/1.2 var(--term);color:var(--dim);background:var(--bg)}
+
+/* toast, modal, palette, cursor */
+.toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:90;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100% - 32px))}
+.toast{background:var(--bg2);border:1px solid var(--c,var(--cyan));padding:12px 14px 12px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 0 20px rgba(0,0,0,.5),0 0 12px color-mix(in srgb,var(--c,var(--cyan)) 40%,transparent);
+  animation:tin .35s cubic-bezier(.2,1.4,.4,1);position:relative;overflow:hidden}
+.toast.out{animation:tout .3s forwards}
+.toast b{font:400 20px/1 var(--term);color:var(--c,var(--cyan))}
+.toast p{margin:0;font-size:14px;flex:1}
+.toast::after{content:"";position:absolute;left:0;bottom:0;height:2px;background:var(--c,var(--cyan));animation:life 3.6s linear forwards}
+@keyframes life{from{width:100%}to{width:0}}
+@keyframes tin{from{transform:translateX(110%)}}
+@keyframes tout{to{transform:translateX(110%);opacity:0}}
+.overlay{position:fixed;inset:0;z-index:80;background:rgba(6,3,20,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.modal{width:min(640px,100%);max-height:86vh;overflow:auto;padding:0;animation:pop .35s cubic-bezier(.2,1.3,.4,1)}
+@keyframes pop{from{transform:scale(.9) translateY(20px);opacity:0}}
+.modal .mh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font:400 20px/1 var(--term);color:var(--cyan)}
+.modal .mb{padding:22px}
+.modal .mb h3{font:700 28px/1.1 var(--display);margin:0 0 10px}
+.modal .mb p{color:var(--dim)}
+.x{background:transparent;border:1px solid var(--line);width:34px;height:34px;cursor:pointer;font:400 22px/1 var(--term)}
+.x:hover{border-color:var(--mag);color:var(--mag)}
+.spec{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin:18px 0}
+.spec div{background:var(--bg2);padding:12px}
+.spec small{display:block;color:var(--dim);font:400 16px/1 var(--term)}
+.spec b{font:700 18px/1.4 var(--display)}
+.pal{position:fixed;inset:0;z-index:85;display:grid;place-items:start center;padding:14vh 16px 16px;background:rgba(6,3,20,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.pal .box{width:min(560px,100%);animation:pop .25s}
+.pal input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);padding:16px 18px;font:400 24px/1 var(--term);outline:0;color:var(--ink)}
+.pal ul{list-style:none;margin:0;padding:6px;max-height:340px;overflow:auto}
+.pal li{padding:10px 12px;display:flex;justify-content:space-between;gap:10px;cursor:pointer;font-size:14px}
+.pal li small{font:400 16px/1 var(--term);color:var(--dim)}
+.pal li.sel{background:rgba(255,46,151,.16);box-shadow:inset 3px 0 0 var(--mag)}
+.pal .empty{padding:18px;color:var(--dim);font:400 20px/1 var(--term)}
+.cur{opacity:0;position:fixed;left:0;top:0;width:26px;height:26px;margin:-13px 0 0 -13px;border:1.5px solid var(--cyan);pointer-events:none;z-index:100;transition:width .2s,height .2s,margin .2s,border-color .2s;mix-blend-mode:screen}
+.cur::before,.cur::after{content:"";position:absolute;background:var(--cyan)}
+.cur::before{left:50%;top:-6px;bottom:-6px;width:1px}
+.cur::after{top:50%;left:-6px;right:-6px;height:1px}
+.cur.big{width:46px;height:46px;margin:-23px 0 0 -23px;border-color:var(--mag);transform:rotate(45deg)}
+@media (pointer:coarse){.cur{display:none}}
+.rv-hide{opacity:0;transform:translateY(28px)}
+.rv-show{opacity:1;transform:none;transition:opacity .7s,transform .7s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}html{scroll-behavior:auto}.rv-hide{opacity:1;transform:none}}
+[id]{scroll-margin-top:80px}
+</style>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="cur" id="cur" aria-hidden="true"></div>
+
+<nav class="nav" aria-label="主导航">
+  <a class="logo" href="#home"><i></i>SHEN.NI</a>
+  <ul>
+    <li><a href="#about">关于</a></li>
+    <li><a href="#work">作品</a></li>
+    <li><a href="#shell">终端</a></li>
+    <li><a href="#lab">组件</a></li>
+    <li><a href="#path">履历</a></li>
+    <li><a href="#contact">联系</a></li>
+  </ul>
+  <button class="kbd" id="openPal" aria-label="打开命令面板"><span>⌘K</span><span style="color:var(--dim)">命令</span></button>
+</nav>
+
+<main class="wrap">
+  <section class="hero max" id="home">
+    <span class="chip"><b></b>ONLINE · 2026 Q4 接受合作</span>
+    <h1 class="glitch">
+      <span class="cn">沈 霓</span>
+      <span class="en" data-t="SHEN NI">SHEN NI</span>
+    </h1>
+    <div class="typer" id="typer" aria-live="polite"></div>
+    <p class="lead">我在浏览器里造会发光的东西：实时 3D、生成式音画、给乐队做的 Live Visual。背后这片不停向你涌来的山谷，就是用 Three.js 实时计算的——拖动下面「组件实验室」里的滑块试试。</p>
+    <div class="row">
+      <a class="btn solid" href="#work">查看作品 ↘</a>
+      <a class="btn cy" href="#shell">打开终端</a>
+      <button class="btn ghost sm" id="heroToast">发送一条 PING</button>
+    </div>
+  </section>
+
+  <section class="max" id="about">
+    <div class="eyebrow">whoami</div>
+    <h2>把代码写成霓虹<small>创意开发者 · 前 Bilibili 互动实验室 · 现独立</small></h2>
+    <div class="about">
+      <div class="panel corner">
+        <p style="margin-top:0">7 年前端，4 年专注 WebGL。我相信性能也是一种审美：60 帧是底线，每一个 draw call 都要有理由存在。做过品牌发布会的实时舞台、音乐节的 LED 视觉，也写过被 3 万人 star 的 shader 小工具。</p>
+        <p style="color:var(--dim)">工作流：GLSL + Three.js + TouchDesigner，偶尔 Rust → WASM。喜欢 80 年代 OutRun 美学、合成器和深夜的便利店。</p>
+        <div class="stats">
+          <div class="stat"><b data-count="4200">0</b><span>GIT COMMITS / 年</span></div>
+          <div class="stat"><b data-count="138">0</b><span>开源 SHADER</span></div>
+          <div class="stat"><b data-count="27">0</b><span>现场演出</span></div>
+        </div>
+      </div>
+      <div class="panel" style="padding:28px" id="skills">
+        <div class="skill" data-v="19"><header>GLSL / Shader<em>95</em></header><div class="cells"></div></div>
+        <div class="skill" data-v="18"><header>Three.js / WebGL<em>90</em></header><div class="cells"></div></div>
+        <div class="skill" data-v="16"><header>Web Audio<em>80</em></header><div class="cells"></div></div>
+        <div class="skill" data-v="14"><header>TouchDesigner<em>70</em></header><div class="cells"></div></div>
+        <div class="skill" data-v="11"><header>Rust / WASM<em>55</em></header><div class="cells"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="max" id="work">
+    <div class="eyebrow">ls ./projects</div>
+    <h2>选定作品<small>点击卡片查看细节 · 鼠标悬停有 3D 倾斜</small></h2>
+    <div class="filters" role="group" aria-label="筛选作品">
+      <button class="fchip" aria-pressed="true" data-f="all">ALL</button>
+      <button class="fchip" aria-pressed="false" data-f="webgl">WEBGL</button>
+      <button class="fchip" aria-pressed="false" data-f="audio">AUDIO</button>
+      <button class="fchip" aria-pressed="false" data-f="tool">TOOLS</button>
+    </div>
+    <div class="grid3" id="cards"></div>
+  </section>
+
+  <section class="max" id="shell">
+    <div class="eyebrow">./terminal --interactive</div>
+    <h2>和我的终端聊聊<small>输入 help 看看能做什么；试试 palette ice 或 speed 3</small></h2>
+    <div class="panel term">
+      <div class="bar"><i></i><i></i><i></i><span>shenni@neon: ~</span></div>
+      <div class="out" id="out" aria-live="polite"></div>
+      <form id="termForm" autocomplete="off"><label for="cmd">shenni@neon:~$</label><input id="cmd" spellcheck="false" aria-label="终端命令"></form>
+    </div>
+    <div class="suggest" id="suggest"></div>
+  </section>
+
+  <section class="max" id="lab">
+    <div class="eyebrow">import { * } from "neon-ui"</div>
+    <h2>组件实验室<small>这套霓虹 UI 组件库的全部零件——其中几个直接控制背后的 3D 场景</small></h2>
+    <div class="lab">
+      <div class="panel c4">
+        <h4>地形速度 <code>&lt;Range/&gt;</code></h4>
+        <input type="range" class="range" id="speed" min="0" max="5" step="0.1" value="1.2" aria-label="地形速度">
+        <div class="rv"><span>0</span><b id="speedV">1.2x</b><span>5</span></div>
+        <h4 style="margin-top:22px">地形起伏 <code>&lt;Range/&gt;</code></h4>
+        <input type="range" class="range" id="rough" min="0" max="2" step="0.05" value="1" aria-label="地形起伏">
+        <div class="rv"><span>平原</span><b id="roughV">1.00</b><span>峡谷</span></div>
+      </div>
+      <div class="panel c4">
+        <h4>调色板 <code>&lt;Segmented/&gt;</code></h4>
+        <div class="seg" id="palSeg"><span class="ind"></span>
+          <button aria-pressed="true" data-p="sunset">日落</button><button aria-pressed="false" data-p="ice">冰川</button><button aria-pressed="false" data-p="toxic">毒雾</button>
+        </div>
+        <div class="swatches" id="sw"><i></i><i></i><i></i><i></i></div>
+        <h4 style="margin-top:22px">场景开关 <code>&lt;Switch/&gt;</code></h4>
+        <label class="switch"><input type="checkbox" id="swCrt" checked><span class="tr"></span>CRT 扫描线</label>
+        <label class="switch"><input type="checkbox" id="swObj" checked><span class="tr"></span>悬浮多面体</label>
+        <label class="switch"><input type="checkbox" id="swStars" checked><span class="tr"></span>星空</label>
+      </div>
+      <div class="panel c4">
+        <h4>按钮 <code>&lt;Button/&gt;</code></h4>
+        <div class="row" style="gap:10px">
+          <button class="btn solid sm">Primary</button>
+          <button class="btn cy sm">Cyan</button>
+          <button class="btn sun sm">Sun</button>
+          <button class="btn ghost sm">Ghost</button>
+          <button class="btn sm" disabled>Disabled</button>
+        </div>
+        <h4 style="margin-top:22px">徽标 · 提示 <code>&lt;Badge/&gt;</code></h4>
+        <div class="badges">
+          <span class="badge ok">Stable</span><span class="badge warn">Beta</span><span class="badge err">Deprecated</span><span class="badge info">v2.4</span><span class="badge fill">New</span>
+        </div>
+        <div class="row" style="margin-top:16px;gap:16px">
+          <span class="tip" tabindex="0" data-tip="60fps 或者不做" style="border-bottom:1px dashed var(--cyan);cursor:help">悬停看提示</span>
+          <span class="tip" tabindex="0" data-tip="draw calls: 3" style="border-bottom:1px dashed var(--mag);cursor:help">性能预算</span>
+        </div>
+      </div>
+      <div class="panel c6">
+        <h4>进度 · 加载 <code>&lt;Progress/&gt;</code></h4>
+        <div class="row" style="gap:26px;flex-wrap:nowrap">
+          <div class="ring" id="ring" style="--v:72"><b id="ringV">72%</b></div>
+          <div style="flex:1;min-width:0">
+            <input type="range" class="range" id="ringR" min="0" max="100" value="72" aria-label="进度">
+            <div class="loaders" style="margin-top:22px">
+              <div class="ld1" role="status" aria-label="加载中"></div>
+              <div class="ld2" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="ld3" id="ld3">[□□□□□□]</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel c6">
+        <h4>通知 · 弹窗 <code>&lt;Toast/&gt; &lt;Modal/&gt;</code></h4>
+        <div class="row" style="gap:10px">
+          <button class="btn cy sm" data-toast="ok">成功</button>
+          <button class="btn sun sm" data-toast="warn">警告</button>
+          <button class="btn sm" data-toast="err">错误</button>
+          <button class="btn ghost sm" id="openModal">打开弹窗</button>
+        </div>
+        <h4 style="margin-top:22px">复选 <code>&lt;Checkbox/&gt;</code></h4>
+        <div class="row" style="gap:18px">
+          <label class="check"><input type="checkbox" id="ck1" checked>抗锯齿</label>
+          <label class="check"><input type="checkbox" id="ck2">Bloom</label>
+          <label class="check"><input type="checkbox" id="ck3" checked>HDR</label>
+        </div>
+      </div>
+      <div class="panel c12 acc">
+        <h4>常见问题 <code>&lt;Accordion/&gt;</code></h4>
+        <details open><summary>你接什么类型的项目？</summary><p>品牌发布会的实时视觉、互动官网里的 3D 主视觉、音乐演出 VJ、以及需要跑满 60 帧的数据可视化。不接纯模板站。</p></details>
+        <details><summary>一个 3D 主视觉大概多久？</summary><p>概念到上线通常 3–6 周：第 1 周做风格帧和性能预算，第 2–4 周实现与调优，最后留一周做移动端降级和兼容性测试。</p></details>
+        <details><summary>移动端会卡吗？</summary><p>不会让它卡。每个场景都有三级画质：高端机满配，中端机减半粒子并关后处理，低端机回退到预渲染视频或静帧。</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="max" id="path">
+    <div class="eyebrow">git log --oneline</div>
+    <h2>履历<small>按时间倒序</small></h2>
+    <div class="tl">
+      <div class="tli"><time>2024 — 今</time><h3>独立创意开发者 · NEON/NI 工作室</h3><p>为 12 个品牌和 5 支乐队做实时视觉。代表作「潮汐合成器」获 FWA of the Day。</p></div>
+      <div class="tli"><time>2021 — 2024</time><h3>Bilibili 互动实验室 · 高级 WebGL 工程师</h3><p>负责拜年纪互动页的 3D 引擎层，单页峰值 900 万 UV，帧率中位数 58fps。</p></div>
+      <div class="tli"><time>2019 — 2021</time><h3>某游戏公司 · 技术美术</h3><p>写了 40 多个 Unity shader，第一次学会看 GPU 帧分析。</p></div>
+      <div class="tli"><time>2019</time><h3>同济大学 · 数字媒体艺术 学士</h3><p>毕设是一台用声音驱动的旧 CRT 电视——背后这片扫描线就是向它致敬。</p></div>
+    </div>
+  </section>
+
+  <section class="max" id="contact">
+    <div class="eyebrow">ping shenni</div>
+    <h2>一起造点会发光的东西</h2>
+    <div class="contact">
+      <div class="panel corner" style="padding:28px">
+        <p style="margin-top:0;color:var(--dim)">邮件是最快的方式，通常 24 小时内回复。</p>
+        <div class="mail" id="mail">hello@shenni.studio</div>
+        <div class="row" style="margin-top:18px">
+          <button class="btn cy sm" id="copyMail">复制邮箱</button>
+          <a class="btn ghost sm" href="https://github.com" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+        <div class="stats" style="grid-template-columns:1fr 1fr">
+          <div class="stat"><b id="clock">--:--</b><span>上海 当地时间</span></div>
+          <div class="stat"><b>~24h</b><span>平均回复</span></div>
+        </div>
+      </div>
+      <form class="panel" style="padding:28px" id="cform" novalidate>
+        <div class="field"><label for="fname">名字</label><input id="fname" placeholder="怎么称呼你"><span class="err"></span></div>
+        <div class="field"><label for="femail">邮箱</label><input id="femail" type="email" placeholder="you@studio.com"><span class="err"></span></div>
+        <div class="field"><label for="ftype">项目类型</label>
+          <select id="ftype"><option>3D 主视觉</option><option>演出 VJ</option><option>数据可视化</option><option>其他</option></select></div>
+        <div class="field"><label for="fmsg">想法</label><textarea id="fmsg" rows="4" placeholder="越具体越好：时间、预算、参考"></textarea><span class="err"></span></div>
+        <button class="btn solid" type="submit">发送 ↗</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<div class="marquee" aria-hidden="true"><div class="tk" id="tk"></div></div>
+<footer><span>© 2026 沈霓 · 用 Three.js r128 实时渲染</span><span>按 ⌘K / Ctrl+K 打开命令面板</span></footer>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.documentElement.classList.add('crt');
+
+/* ---------- noise ---------- */
+function hash(x, y) { let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+function noise(x, y) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  const a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+const fbm = (x, y) => noise(x, y) * .6 + noise(x * 2.1, y * 2.1) * .3 + noise(x * 4.3, y * 4.3) * .1;
+
+/* ---------- palettes ---------- */
+const PAL = {
+  sunset: { grid: '#ff2e97', acc: '#1ef2f0', s1: '#ffd35c', s2: '#ff2e97' },
+  ice:    { grid: '#35b8ff', acc: '#ffd35c', s1: '#effdff', s2: '#2f6bff' },
+  toxic:  { grid: '#a8ff3e', acc: '#ff2e97', s1: '#fff36b', s2: '#ff6a1a' },
+};
+const state = { speed: 1.2, rough: 1, pal: 'sunset' };
+
+/* ---------- three scene ---------- */
+const canvas = $('#scene');
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' }); } catch (e) { canvas.style.background = 'radial-gradient(circle at 50% 70%,#ff2e97 0,#0d0826 60%)'; }
+const scene = new THREE.Scene();
+const BG = new THREE.Color('#0d0826');
+scene.background = BG; scene.fog = new THREE.Fog(BG, 16, 72);
+const camera = new THREE.PerspectiveCamera(62, 1, .1, 300);
+camera.position.set(0, 2.4, 10);
+
+const TW = 64, TD = 120, SX = 64, SZ = 120;
+const tgeo = new THREE.PlaneGeometry(TW, TD, SX, SZ); tgeo.rotateX(-Math.PI / 2);
+const tpos = tgeo.attributes.position, base = tpos.array.slice();
+const solid = new THREE.Mesh(tgeo, new THREE.MeshBasicMaterial({ color: BG, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }));
+const wireMat = new THREE.MeshBasicMaterial({ color: PAL.sunset.grid, wireframe: true });
+const wire = new THREE.Mesh(tgeo, wireMat);
+const terrain = new THREE.Group(); terrain.add(solid, wire); scene.add(terrain);
+let offset = 0;
+function updateTerrain() {
+  const shift = offset % 1; terrain.position.z = -48 + shift;
+  const a = tpos.array;
+  for (let i = 0; i < a.length; i += 3) {
+    const x = base[i], z = base[i + 2] + terrain.position.z;
+    const valley = Math.max(0, Math.abs(x) - 3.2);
+    const n = fbm(x * .16 + 50, (z - offset) * .16);
+    a[i + 1] = Math.pow(valley, 1.2) * .16 * (.35 + n * 1.6) * state.rough + (valley > 0 ? n * .5 * state.rough : 0);
+  }
+  tpos.needsUpdate = true;
+}
+
+// sun
+const sunMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false,
+  uniforms: { t: { value: 0 }, c1: { value: new THREE.Color(PAL.sunset.s1) }, c2: { value: new THREE.Color(PAL.sunset.s2) } },
+  vertexShader: 'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader: `varying vec2 vUv;uniform float t;uniform vec3 c1,c2;
+  void main(){vec2 p=vUv-.5;float r=length(p);
+    float disc=smoothstep(.5,.49,r*1.6);
+    float glow=smoothstep(.5,.0,r)*.55;
+    float y=(p.y*1.6)+.5;
+    vec3 col=mix(c2,c1,smoothstep(.15,.95,y));
+    float band=fract(y*13.-t*.5);float th=mix(.6,.0,smoothstep(.05,.55,y));
+    if(y<.55&&band<th)disc=0.;
+    vec3 outc=col*disc+c2*glow*(1.-disc);
+    gl_FragColor=vec4(outc,max(disc,glow*.9));}`
+});
+const sun = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), sunMat);
+sun.position.set(0, 7, -110); scene.add(sun);
+
+// stars
+const sg = new THREE.BufferGeometry(); const sp = [];
+for (let i = 0; i < 1400; i++) { const th = Math.random() * Math.PI - Math.PI / 2 - Math.PI / 2, r = 120; sp.push(Math.cos(th) * r * (Math.random() * .8 + .4), 10 + Math.random() * 70, -60 - Math.random() * 80); }
+sg.setAttribute('position', new THREE.Float32BufferAttribute(sp, 3));
+const stars = new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, size: .35, sizeAttenuation: true, transparent: true, opacity: .8, fog: false }));
+scene.add(stars);
+
+// floating poly
+const poly = new THREE.Group();
+const edges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(1.6, 0)), new THREE.LineBasicMaterial({ color: PAL.sunset.acc }));
+const inner = new THREE.Mesh(new THREE.OctahedronGeometry(.8, 0), new THREE.MeshBasicMaterial({ color: PAL.sunset.grid, wireframe: true }));
+const ring = new THREE.Mesh(new THREE.TorusGeometry(2.4, .015, 6, 90), new THREE.MeshBasicMaterial({ color: PAL.sunset.s1 }));
+ring.rotation.x = 1.2; poly.add(edges, inner, ring); scene.add(poly);
+
+function applyPalette(name) {
+  const p = PAL[name]; state.pal = name;
+  wireMat.color.set(p.grid); edges.material.color.set(p.acc); inner.material.color.set(p.grid); ring.material.color.set(p.s1);
+  sunMat.uniforms.c1.value.set(p.s1); sunMat.uniforms.c2.value.set(p.s2);
+  const r = document.documentElement.style; r.setProperty('--mag', p.grid); r.setProperty('--cyan', p.acc); r.setProperty('--sun', p.s1);
+  $$('#sw i').forEach((el, i) => el.style.background = [p.grid, p.acc, p.s1, p.s2][i]);
+  $$('#palSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === name));
+  moveInd();
+}
+
+const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+addEventListener('pointermove', e => { mouse.tx = e.clientX / innerWidth * 2 - 1; mouse.ty = e.clientY / innerHeight * 2 - 1; });
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  if (renderer) { renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75)); renderer.setSize(w, h, false); }
+  camera.aspect = w / h; camera.fov = w < 700 ? 75 : 62; camera.updateProjectionMatrix();
+  if (w < 860) { poly.position.set(0, 6.4, -6); poly.scale.setScalar(.7); } else { poly.position.set(5.2, 3.6, -2); poly.scale.setScalar(1); }
+}
+addEventListener('resize', resize); resize();
+let last = performance.now(), t = 0;
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, .05); last = now; t += dt;
+  offset += dt * state.speed * 4;
+  updateTerrain();
+  sunMat.uniforms.t.value = t;
+  mouse.x += (mouse.tx - mouse.x) * .05; mouse.y += (mouse.ty - mouse.y) * .05;
+  const s = Math.min(scrollY / innerHeight, 3);
+  camera.position.x = mouse.x * .8; camera.position.y = 2.4 + s * .9 - mouse.y * .3;
+  camera.lookAt(mouse.x * 2, 2.6 - s * 1.2, -40);
+  poly.rotation.y += dt * .4; poly.rotation.x = Math.sin(t * .5) * .3 + mouse.y * .4; poly.rotation.z = mouse.x * .3;
+  inner.rotation.y -= dt * 1.2; ring.rotation.z += dt * .6;
+  poly.position.y += Math.sin(t * 1.3) * .003;
+  stars.material.opacity = .6 + Math.sin(t * 2) * .2;
+  if (renderer) renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- toast ---------- */
+const TC = { ok: ['var(--ok)', 'OK'], warn: ['var(--warn)', 'WARN'], err: ['var(--err)', 'ERR'], info: ['var(--cyan)', 'INFO'] };
+function toast(msg, type = 'info') {
+  const [c, tag] = TC[type]; const el = document.createElement('div');
+  el.className = 'toast'; el.style.setProperty('--c', c);
+  el.innerHTML = `<b>[${tag}]</b><p></p><button class="x" aria-label="关闭" style="width:26px;height:26px;font-size:18px">×</button>`;
+  el.querySelector('p').textContent = msg;
+  const kill = () => { el.classList.add('out'); setTimeout(() => el.remove(), 300); };
+  el.querySelector('button').onclick = kill; setTimeout(kill, 3600);
+  $('#toasts').append(el);
+}
+window.toast = toast;
+$('#heroToast').onclick = () => toast('PING 已发出 · 往返 12ms · 霓虹链路正常', 'ok');
+$$('[data-toast]').forEach(b => b.onclick = () => ({
+  ok: () => toast('着色器编译成功 · 耗时 38ms', 'ok'),
+  warn: () => toast('帧时间 19.2ms，接近预算上限', 'warn'),
+  err: () => toast('WebGL 上下文丢失，已自动恢复', 'err'),
+})[b.dataset.toast]());
+
+/* ---------- modal ---------- */
+function modal(title, html) {
+  const ov = document.createElement('div'); ov.className = 'overlay'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+  ov.innerHTML = `<div class="panel corner modal"><div class="mh"><span>// ${title}</span><button class="x" aria-label="关闭">×</button></div><div class="mb">${html}</div></div>`;
+  const prev = document.activeElement;
+  const close = () => { ov.remove(); removeEventListener('keydown', esc); prev && prev.focus(); };
+  const esc = e => e.key === 'Escape' && close();
+  ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  ov.querySelector('.x').onclick = close; addEventListener('keydown', esc);
+  document.body.append(ov); ov.querySelector('.x').focus();
+  return ov;
+}
+$('#openModal').onclick = () => modal('SYSTEM', `<h3>这是一个弹窗组件</h3><p>点击遮罩、按 Esc 或右上角都可以关闭。焦点会回到打开它的按钮上。</p><div class="row" style="margin-top:18px"><button class="btn solid sm" onclick="this.closest('.overlay').remove();toast('已确认','ok')">确认</button></div>`);
+
+/* ---------- projects ---------- */
+const PROJ = [
+  { t: '潮汐合成器', k: 'audio', y: 2025, d: '把月球引力数据映射成合成器参数，浏览器里实时出声、出画。', tags: ['Web Audio', 'GLSL'], hue: [330, 180], stack: 'Tone.js · GLSL', perf: '60fps / 2 draw calls', role: '独立' },
+  { t: '霓虹城市 2077', k: 'webgl', y: 2025, d: '某运动品牌发布会主视觉，程序化生成的无限城市，观众扫码改变天气。', tags: ['Three.js', 'Instancing'], hue: [300, 45], stack: 'Three.js · WebSocket', perf: '12 万实例', role: '技术总监' },
+  { t: 'Shader 调色盘', k: 'tool', y: 2024, d: '给设计师用的 GLSL 渐变生成器，导出 CSS / PNG / 代码，GitHub 3.1 万 star。', tags: ['Tool', 'OSS'], hue: [180, 60], stack: 'Svelte · WebGL2', perf: '31k stars', role: '作者' },
+  { t: '乐队 VJ 系统', k: 'audio', y: 2024, d: '为独立乐队「夜航船」巡演做的实时视觉，MIDI 控制器驱动 16 个场景。', tags: ['TouchDesigner', 'MIDI'], hue: [270, 330], stack: 'TD · Ableton Link', perf: '27 场演出', role: 'VJ' },
+  { t: '粒子书法', k: 'webgl', y: 2023, d: '笔触被拆成 50 万粒子重组成字，GPGPU 计算，手机上也能跑 60 帧。', tags: ['GPGPU', 'Mobile'], hue: [45, 330], stack: 'WebGL2 · FBO', perf: '50 万粒子', role: '独立' },
+  { t: 'FrameBudget', k: 'tool', y: 2023, d: 'Chrome 插件：给任意网页画出每帧耗时火焰图，定位掉帧元凶。', tags: ['DevTools', 'Perf'], hue: [150, 200], stack: 'TypeScript', perf: '8k 用户', role: '作者' },
+];
+const cardsEl = $('#cards');
+PROJ.forEach((p, i) => {
+  const c = document.createElement('article'); c.className = 'card'; c.dataset.k = p.k; c.tabIndex = 0;
+  c.innerHTML = `<div class="in"><div class="thumb"><span class="yr">${p.y}</span><canvas width="320" height="200"></canvas></div><div class="meta"><h3>${p.t}</h3><p>${p.d}</p><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div></div></div>`;
+  drawThumb(c.querySelector('canvas'), p, i);
+  const inEl = c.querySelector('.in');
+  c.addEventListener('pointermove', e => { const r = c.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; inEl.style.transform = `rotateY(${x * 14}deg) rotateX(${-y * 14}deg)`; });
+  c.addEventListener('pointerleave', () => inEl.style.transform = '');
+  const open = () => modal(p.k.toUpperCase() + ' / ' + p.y, `<h3>${p.t}</h3><p>${p.d}</p><div class="spec"><div><small>STACK</small><b>${p.stack}</b></div><div><small>KPI</small><b>${p.perf}</b></div><div><small>ROLE</small><b>${p.role}</b></div></div><div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>`);
+  c.onclick = open; c.onkeydown = e => { if (e.key === 'Enter') open(); };
+  cardsEl.append(c);
+});
+function drawThumb(cv, p, seed) {
+  const g = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, `hsl(${p.hue[0]},70%,12%)`); gr.addColorStop(1, `hsl(${p.hue[1]},80%,22%)`);
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.strokeStyle = `hsla(${p.hue[0]},100%,65%,.9)`; g.lineWidth = 1.2; g.shadowColor = g.strokeStyle; g.shadowBlur = 8;
+  if (seed % 3 === 0) { for (let k = 0; k < 7; k++) { g.beginPath(); for (let x = 0; x <= W; x += 4) { const y = H / 2 + Math.sin(x * .03 + k * .7) * (20 + k * 8) * Math.sin(x * .01 + seed); x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); } }
+  else if (seed % 3 === 1) { for (let k = 0; k < 26; k++) { const x = (k * 37 + seed * 11) % W, h = 30 + ((k * 53) % 110); g.strokeRect(x, H - h, 14 + (k % 3) * 6, h); } }
+  else { for (let k = 0; k < 90; k++) { const a = k * .3 + seed, r = k * 1.2; g.beginPath(); g.arc(W / 2 + Math.cos(a) * r, H / 2 + Math.sin(a) * r * .6, 1.6 + (k % 4), 0, 7); g.stroke(); } }
+  g.shadowBlur = 0; g.fillStyle = `hsla(${p.hue[1]},100%,70%,.9)`; g.font = '22px VT323, monospace'; g.fillText(`// ${String(seed + 1).padStart(2, '0')}`, 12, 26);
+}
+$$('.fchip').forEach(b => b.onclick = () => {
+  $$('.fchip').forEach(x => x.setAttribute('aria-pressed', x === b));
+  $$('.card').forEach(c => c.hidden = !(b.dataset.f === 'all' || c.dataset.k === b.dataset.f));
+});
+
+/* ---------- skills + counters ---------- */
+$$('.skill').forEach(s => { const v = +s.dataset.v, cells = s.querySelector('.cells'); for (let i = 0; i < 20; i++) { const c = document.createElement('i'); cells.append(c); } s._v = v; });
+function fillSkills() { $$('.skill').forEach(s => $$('i', s).forEach((c, i) => setTimeout(() => { if (i < s._v) c.classList.add('lit'); if (i >= s._v - 3 && i < s._v) c.classList.add('hi'); }, i * 40))); }
+function countUp(el) { const to = +el.dataset.count; const t0 = performance.now(); const step = n => { const k = Math.min((n - t0) / 1400, 1); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString(); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return; const el = e.target;
+  if (el.id === 'skills') fillSkills();
+  if (el.dataset.count) countUp(el);
+  if (el.classList.contains('rv-hide')) { el.classList.add('rv-show'); el.classList.remove('rv-hide'); }
+  io.unobserve(el);
+}), { threshold: .2 });
+io.observe($('#skills')); $$('[data-count]').forEach(el => io.observe(el));
+$$('section h2, .panel, .card, .tli').forEach(el => { if (!reduce && el.getBoundingClientRect().top > innerHeight) { el.classList.add('rv-hide'); io.observe(el); } });
+
+/* ---------- typer ---------- */
+const roles = ['> 创意开发者 / Creative Developer', '> 实时 3D · GLSL 手艺人', '> 乐队 VJ · 合成器爱好者', '> 60fps 原教旨主义者'];
+let ri = 0, ci = 0, del = false;
+(function type() {
+  const s = roles[ri]; $('#typer').textContent = s.slice(0, ci);
+  if (!del && ci < s.length) ci++; else if (!del) { del = true; return setTimeout(type, 1600); }
+  else if (ci > 0) ci--; else { del = false; ri = (ri + 1) % roles.length; }
+  setTimeout(type, del ? 28 : 60);
+})();
+
+/* ---------- lab controls ---------- */
+const setP = el => el.style.setProperty('--p', (el.value - el.min) / (el.max - el.min) * 100 + '%');
+const speed = $('#speed'), rough = $('#rough');
+function setSpeed(v) { state.speed = +v; speed.value = v; setP(speed); $('#speedV').textContent = (+v).toFixed(1) + 'x'; }
+function setRough(v) { state.rough = +v; rough.value = v; setP(rough); $('#roughV').textContent = (+v).toFixed(2); }
+speed.oninput = () => setSpeed(speed.value); rough.oninput = () => setRough(rough.value);
+setSpeed(reduce ? .2 : 1.2); setRough(1);
+function moveInd() { const b = $('#palSeg button[aria-pressed="true"]'), ind = $('#palSeg .ind'); if (!b) return; ind.style.left = b.offsetLeft + 'px'; ind.style.width = b.offsetWidth + 'px'; }
+$$('#palSeg button').forEach(b => b.onclick = () => { applyPalette(b.dataset.p); toast(`调色板切换为「${b.textContent}」`, 'info'); });
+addEventListener('resize', moveInd);
+$('#swCrt').onchange = e => document.documentElement.classList.toggle('crt', e.target.checked);
+$('#swObj').onchange = e => poly.visible = e.target.checked;
+$('#swStars').onchange = e => stars.visible = e.target.checked;
+const ringR = $('#ringR'); setP(ringR);
+ringR.oninput = () => { setP(ringR); $('#ring').style.setProperty('--v', ringR.value); $('#ringV').textContent = ringR.value + '%'; };
+let ldn = 0; setInterval(() => { ldn = (ldn + 1) % 7; $('#ld3').textContent = '[' + '■'.repeat(ldn) + '□'.repeat(6 - ldn) + ']'; }, 260);
+['ck1', 'ck2', 'ck3'].forEach(id => $('#' + id).onchange = e => toast(`${e.target.parentElement.textContent.trim()} ${e.target.checked ? '已开启' : '已关闭'}`, 'info'));
+applyPalette('sunset');
+
+/* ---------- terminal ---------- */
+const out = $('#out'), cmd = $('#cmd'); const hist = []; let hi = 0;
+const print = (html, cls = '') => { const d = document.createElement('div'); if (cls) d.className = cls; d.innerHTML = html; out.append(d); out.scrollTop = out.scrollHeight; };
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+const CMDS = {
+  help: () => print(`<span class="c">可用命令</span>
+  <span class="y">whoami</span>      关于我
+  <span class="y">ls</span>          列出作品
+  <span class="y">skills</span>      技能树
+  <span class="y">palette</span> &lt;sunset|ice|toxic&gt;  切换配色（真的会改背后的 3D）
+  <span class="y">speed</span> &lt;0-5&gt;   地形速度
+  <span class="y">contact</span>     联系方式
+  <span class="y">date</span>        当前时间
+  <span class="y">clear</span>       清屏
+  <span class="d">…还有一个隐藏命令，和雇佣有关。</span>`),
+  whoami: () => print('沈霓 · 创意开发者 · 上海\n把代码写成霓虹，把帧率当作审美。'),
+  ls: () => print(PROJ.map(p => `<span class="c">${p.y}</span>  ${p.t.padEnd(10, '　')} <span class="d">[${p.k}]</span>`).join('\n')),
+  skills: () => print('GLSL ████████████████████ 95\nThree ██████████████████░░ 90\nAudio ████████████████░░░░ 80\nTD    ██████████████░░░░░░ 70\nRust  ███████████░░░░░░░░░ 55', 'g'),
+  contact: () => print('mail   <span class="y">hello@shenni.studio</span>\ngithub github.com/shenni（示例）'),
+  date: () => print(new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })),
+  clear: () => out.innerHTML = '',
+  palette: a => { if (!PAL[a]) return print('用法：palette sunset | ice | toxic', 'y'); applyPalette(a); print(`配色已切换为 ${a} ✓`, 'g'); },
+  speed: a => { const v = parseFloat(a); if (isNaN(v) || v < 0 || v > 5) return print('用法：speed 0 到 5 之间的数字', 'y'); setSpeed(v); print(`地形速度 = ${v}x ✓`, 'g'); },
+  sudo: a => a === 'hire-me' ? (print('[sudo] 权限已授予。正在打开联系表单…', 'g'), setTimeout(() => location.hash = '#contact', 700)) : print('sudo: 你想雇佣谁？试试 sudo hire-me', 'y'),
+  echo: a => print(esc(a || '')),
+};
+function run(line) {
+  print(`<span class="p">shenni@neon:~$</span> ${esc(line)}`);
+  const [c, ...rest] = line.trim().split(/\s+/); if (!c) return;
+  (CMDS[c.toLowerCase()] || (() => print(`command not found: ${esc(c)} — 输入 help`, 'y')))(rest.join(' '));
+}
+$('#termForm').onsubmit = e => { e.preventDefault(); const v = cmd.value; if (v.trim()) { hist.push(v); hi = hist.length; } run(v); cmd.value = ''; };
+cmd.onkeydown = e => {
+  if (e.key === 'ArrowUp' && hi > 0) { cmd.value = hist[--hi]; e.preventDefault(); }
+  if (e.key === 'ArrowDown') { hi = Math.min(hist.length, hi + 1); cmd.value = hist[hi] || ''; }
+  if (e.key === 'Tab') { e.preventDefault(); const m = Object.keys(CMDS).find(k => k.startsWith(cmd.value)); if (m) cmd.value = m; }
+};
+print('NEON-OS v2.6 (tty1) — 已连接\n<span class="d">输入 help 开始。Tab 自动补全，↑↓ 翻历史。</span>');
+['help', 'whoami', 'ls', 'palette ice', 'speed 3', 'sudo hire-me'].forEach(c => { const b = document.createElement('button'); b.className = 'fchip'; b.textContent = c; b.onclick = () => { run(c); }; $('#suggest').append(b); });
+
+/* ---------- command palette ---------- */
+const ACTIONS = [
+  ['跳转：关于', 'nav', () => location.hash = '#about'], ['跳转：作品', 'nav', () => location.hash = '#work'],
+  ['跳转：终端', 'nav', () => { location.hash = '#shell'; setTimeout(() => cmd.focus(), 400); }], ['跳转：组件实验室', 'nav', () => location.hash = '#lab'],
+  ['跳转：联系', 'nav', () => location.hash = '#contact'],
+  ['配色：日落', 'theme', () => applyPalette('sunset')], ['配色：冰川', 'theme', () => applyPalette('ice')], ['配色：毒雾', 'theme', () => applyPalette('toxic')],
+  ['地形：全速冲刺', '3d', () => setSpeed(5)], ['地形：暂停', '3d', () => setSpeed(0)], ['地形：夷为平地', '3d', () => setRough(0)],
+  ['切换 CRT 扫描线', 'fx', () => { const s = $('#swCrt'); s.checked = !s.checked; s.onchange({ target: s }); }],
+  ['复制邮箱', 'util', () => copyMail()],
+];
+function openPalette() {
+  if ($('.pal')) return;
+  const ov = document.createElement('div'); ov.className = 'pal'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', '命令面板');
+  ov.innerHTML = `<div class="panel corner box"><input id="palq" placeholder="输入命令…" aria-label="搜索命令"><ul role="listbox"></ul></div>`;
+  document.body.append(ov);
+  const q = $('#palq', ov), ul = $('ul', ov); let sel = 0, list = ACTIONS;
+  const close = () => ov.remove();
+  const render = () => {
+    list = ACTIONS.filter(a => a[0].toLowerCase().includes(q.value.toLowerCase()));
+    sel = Math.min(sel, Math.max(list.length - 1, 0));
+    ul.innerHTML = list.length ? list.map((a, i) => `<li role="option" class="${i === sel ? 'sel' : ''}" data-i="${i}">${a[0]}<small>${a[1]}</small></li>`).join('') : '<div class="empty">没有匹配的命令</div>';
+    $$('li', ul).forEach(li => { li.onclick = () => { list[li.dataset.i][2](); close(); }; li.onmousemove = () => { if (sel !== +li.dataset.i) { sel = +li.dataset.i; render(); } }; });
+  };
+  q.oninput = () => { sel = 0; render(); };
+  q.onkeydown = e => {
+    if (e.key === 'ArrowDown') { sel = (sel + 1) % list.length; render(); e.preventDefault(); }
+    if (e.key === 'ArrowUp') { sel = (sel - 1 + list.length) % list.length; render(); e.preventDefault(); }
+    if (e.key === 'Enter' && list[sel]) { list[sel][2](); close(); }
+    if (e.key === 'Escape') close();
+  };
+  ov.onclick = e => { if (e.target === ov) close(); };
+  render(); q.focus();
+}
+$('#openPal').onclick = openPalette;
+addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openPalette(); } });
+
+/* ---------- contact ---------- */
+function copyMail() {
+  const txt = $('#mail').textContent;
+  const fb = () => { const r = document.createRange(); r.selectNodeContents($('#mail')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('已选中邮箱，按 ⌘C 复制', 'warn'); };
+  try { navigator.clipboard.writeText(txt).then(() => toast('邮箱已复制到剪贴板', 'ok'), fb); } catch (e) { fb(); }
+}
+$('#copyMail').onclick = copyMail;
+$('#cform').onsubmit = e => {
+  e.preventDefault(); let ok = true;
+  const chk = (id, test, msg) => { const f = $('#' + id).closest('.field'); const bad = !test($('#' + id).value.trim()); f.classList.toggle('bad', bad); f.querySelector('.err').textContent = bad ? msg : ''; if (bad) ok = false; };
+  chk('fname', v => v.length > 0, '需要一个称呼');
+  chk('femail', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), '邮箱格式不对，例如 you@studio.com');
+  chk('fmsg', v => v.length >= 10, '再多写几句（至少 10 个字）');
+  if (ok) { toast('演示站点：消息没有真正发出，请直接写邮件给我', 'warn'); e.target.reset(); }
+};
+setInterval(() => $('#clock').textContent = new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Shanghai', hour: '2-digit', minute: '2-digit' }), 1000);
+
+/* ---------- marquee, nav spy, cursor ---------- */
+const words = ['Three.js', 'GLSL', 'Web Audio', 'TouchDesigner', 'Live Visual', '60 FPS', 'Generative', 'OutRun'];
+$('#tk').innerHTML = [...words, ...words].map(w => `<span>${w} ✦</span>`).join('');
+const navLinks = $$('.nav ul a');
+const spy = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) navLinks.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-45% 0px -50% 0px' });
+$$('main section[id]').forEach(s => spy.observe(s));
+const cur = $('#cur'); let cx = 0, cy = 0, px = 0, py = 0;
+addEventListener('pointermove', e => { px = e.clientX; py = e.clientY; cur.style.opacity = 1; cur.classList.toggle('big', !!(e.target.closest && e.target.closest('a,button,.card,input,label,summary'))); });
+(function cl() { cx += (px - cx) * .25; cy += (py - cy) * .25; cur.style.transform = `translate(${cx}px,${cy}px)` + (cur.classList.contains('big') ? ' rotate(45deg)' : ''); requestAnimationFrame(cl); })();
+})();
+</script>

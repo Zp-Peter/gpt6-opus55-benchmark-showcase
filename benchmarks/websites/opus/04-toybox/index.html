@@ -1,0 +1,667 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>阿柚的玩具箱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=ZCOOL+KuaiLe&family=Rubik:wght@400;500;700;800&family=Silkscreen&family=Noto+Sans+SC:wght@400;500;700;900&display=swap">
+<style>
+:root{
+  --bg:#e7e3ff; --ink:#121212; --white:#ffffff;
+  --yel:#ffd23f; --pink:#ff6fb5; --grn:#2ee59d; --org:#ff8a3d; --blu:#4d7cff; --lil:#b9a8ff;
+  --b:3px solid var(--ink); --sh:6px 6px 0 var(--ink); --sh-s:3px 3px 0 var(--ink);
+  --display:"Bowlby One","ZCOOL KuaiLe","Noto Sans SC",system-ui,sans-serif;
+  --cn:"ZCOOL KuaiLe","Noto Sans SC",system-ui,sans-serif;
+  --body:"Rubik","Noto Sans SC",system-ui,sans-serif;
+  --pix:"Silkscreen","Noto Sans SC",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:500 16px/1.6 var(--body);overflow-x:hidden;
+  background-image:radial-gradient(rgba(18,18,18,.18) 1.2px,transparent 1.3px);background-size:22px 22px}
+::selection{background:var(--pink);color:var(--ink)}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px dashed var(--blu);outline-offset:4px}
+.wrap{padding-inline:clamp(16px,4vw,48px)}
+.max{max-width:1200px;margin-inline:auto}
+.pix{font:400 12px/1.2 var(--pix);letter-spacing:.02em;text-transform:uppercase}
+
+/* ticker */
+.ticker{background:var(--ink);color:var(--yel);overflow:hidden;border-bottom:var(--b)}
+.ticker .tk{display:flex;width:max-content;animation:tk 22s linear infinite}
+.ticker span{padding:9px 20px;white-space:nowrap;font:400 13px/1 var(--pix)}
+.ticker span:nth-child(3n+2){color:var(--pink)}.ticker span:nth-child(3n){color:var(--grn)}
+@keyframes tk{to{transform:translateX(-50%)}}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;padding-block:14px}
+.navin{display:flex;align-items:center;gap:12px;background:var(--white);border:var(--b);box-shadow:var(--sh);padding:8px 8px 8px 14px;border-radius:14px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font:400 20px/1 var(--display)}
+.logo i{width:34px;height:34px;border:var(--b);border-radius:10px;background:var(--yel);display:grid;place-items:center;font-style:normal;font-size:18px;transform:rotate(-8deg);transition:transform .3s cubic-bezier(.3,2,.5,1)}
+.logo:hover i{transform:rotate(12deg) scale(1.1)}
+.nav ul{display:flex;gap:4px;list-style:none;margin:0 0 0 auto;padding:0}
+.nav ul a{display:block;padding:8px 12px;border-radius:9px;text-decoration:none;font-weight:700;border:2px solid transparent;transition:.15s}
+.nav ul a:hover{border-color:var(--ink);background:var(--yel);transform:rotate(-2deg)}
+@media (max-width:820px){.nav ul{display:none}.navin .b{margin-left:auto}}
+
+/* buttons */
+.b{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border:var(--b);border-radius:12px;background:var(--yel);box-shadow:var(--sh-s);cursor:pointer;font:800 15px/1 var(--body);text-decoration:none;transition:transform .1s,box-shadow .1s,background .2s;user-select:none;white-space:nowrap}
+.b:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+.b:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.b.pk{background:var(--pink)}.b.gr{background:var(--grn)}.b.bl{background:var(--blu);color:var(--white)}.b.wh{background:var(--white)}.b.or{background:var(--org)}
+.b.lg{padding:16px 24px;font-size:18px;border-radius:14px;box-shadow:var(--sh)}
+.b.lg:hover{box-shadow:8px 8px 0 var(--ink)}
+.b.sm{padding:8px 12px;font-size:13px;border-radius:9px}
+.b[disabled]{opacity:.5;pointer-events:none;box-shadow:none}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1fr 1.05fr;gap:36px;align-items:center;padding-block:30px 70px}
+@media (max-width:940px){.hero{grid-template-columns:1fr}}
+.hi{font:500 18px/1 var(--cn);display:inline-flex;gap:8px;align-items:center;background:var(--white);border:var(--b);padding:8px 14px;border-radius:999px;box-shadow:var(--sh-s);transform:rotate(-2deg)}
+.hi .wave{display:inline-block;animation:wave 1.6s ease-in-out infinite;transform-origin:70% 70%}
+@keyframes wave{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(16deg)}20%,40%{transform:rotate(-10deg)}}
+h1{font:400 clamp(58px,9vw,124px)/.95 var(--cn);margin:22px 0 14px;letter-spacing:-.01em}
+h1 .ch{display:inline-block;transition:transform .35s cubic-bezier(.3,2.2,.5,1);cursor:default;-webkit-text-stroke:3px var(--ink);paint-order:stroke fill}
+h1 .ch:hover{transform:translateY(-14px) rotate(-8deg)}
+h1 .c1{color:var(--pink)}h1 .c2{color:var(--yel)}h1 .c3{color:var(--grn)}h1 .c4{color:var(--blu)}h1 .c5{color:var(--org)}
+.lead{font-size:19px;max-width:30em;margin:0 0 26px}
+.lead mark{background:var(--yel);padding:0 4px;border:2px solid var(--ink);border-radius:6px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.stickers{position:relative;height:0}
+.stk{position:absolute;font:400 14px/1.1 var(--display);padding:10px 12px;border:var(--b);border-radius:12px;box-shadow:var(--sh-s);text-align:center;cursor:grab;user-select:none;touch-action:none;z-index:5}
+.stk:active{cursor:grabbing}
+@media (max-width:640px){.stickers{display:none}}
+
+/* toybox window */
+.win{background:var(--white);border:var(--b);border-radius:16px;box-shadow:10px 10px 0 var(--ink);overflow:hidden;position:relative}
+.win .tb{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:var(--b);background:var(--lil)}
+.win .tb i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);background:var(--pink)}
+.win .tb i:nth-child(2){background:var(--yel)}.win .tb i:nth-child(3){background:var(--grn)}
+.win .tb span{margin-left:auto}
+.stage{position:relative;aspect-ratio:5/4;max-width:100%;background:#fdf6ff}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.stage canvas.grab{cursor:grabbing}
+.stage .hud{position:absolute;left:10px;top:10px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+.stage .hud span{background:var(--white);border:2px solid var(--ink);border-radius:8px;padding:5px 8px}
+.win .ctl{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-top:var(--b);background:#fffbe8}
+
+/* section heads */
+section{padding-block:clamp(60px,8vw,100px)}
+.sh{display:flex;align-items:end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:32px}
+.sh h2{font:400 clamp(38px,5.5vw,70px)/1 var(--cn);margin:0;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.sh h2 .tag{font:400 14px/1 var(--pix);background:var(--ink);color:var(--yel);padding:8px 10px;border-radius:8px;transform:rotate(4deg)}
+.sh p{margin:0;max-width:26em;font-size:17px}
+
+/* tabs */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.tab{padding:10px 16px;border:var(--b);border-radius:999px;background:var(--white);cursor:pointer;font-weight:700;transition:.15s;box-shadow:0 0 0 var(--ink)}
+.tab:hover{transform:translateY(-2px);box-shadow:0 3px 0 var(--ink)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--yel)}
+.tab .n{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:11px;background:var(--pink);color:var(--ink);font:400 11px/1 var(--pix);margin-left:6px;border:2px solid var(--ink)}
+
+/* game cards */
+.games{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media (max-width:980px){.games{grid-template-columns:1fr 1fr}}
+@media (max-width:620px){.games{grid-template-columns:1fr}}
+.game{background:var(--white);border:var(--b);border-radius:16px;box-shadow:var(--sh);overflow:hidden;display:flex;flex-direction:column;transition:transform .2s cubic-bezier(.3,2,.5,1),box-shadow .2s}
+.game:hover{transform:translate(-3px,-3px) rotate(-1deg);box-shadow:10px 10px 0 var(--ink)}
+.game[hidden]{display:none}
+.cover{position:relative;border-bottom:var(--b);aspect-ratio:16/10;max-width:100%;overflow:hidden}
+.cover canvas{width:100%;height:100%;image-rendering:pixelated;display:block;transition:transform .5s}
+.game:hover .cover canvas{transform:scale(1.08)}
+.cover .st{position:absolute;top:10px;left:10px;border:2px solid var(--ink);border-radius:8px;padding:5px 8px;background:var(--grn)}
+.cover .play{position:absolute;right:12px;bottom:12px;width:54px;height:54px;border-radius:50%;border:var(--b);background:var(--yel);display:grid;place-items:center;font-size:20px;box-shadow:var(--sh-s);transform:scale(0) rotate(-90deg);transition:transform .35s cubic-bezier(.3,2,.5,1);cursor:pointer}
+.game:hover .play,.game:focus-within .play{transform:scale(1) rotate(0)}
+.game .gb{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
+.game h3{font:400 26px/1.1 var(--cn);margin:0}
+.game p{margin:0;font-size:15px;flex:1}
+.gm{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.plats{display:flex;gap:5px;flex-wrap:wrap}
+.plat{border:2px solid var(--ink);border-radius:6px;padding:3px 6px;background:var(--bg)}
+.rate{display:flex;gap:2px}
+.rate button{background:none;border:0;padding:0;cursor:pointer;font-size:18px;line-height:1;color:#d8d4ea;-webkit-text-stroke:1.5px var(--ink);transition:transform .2s}
+.rate button.on{color:var(--yel)}
+.rate button:hover{transform:scale(1.3) rotate(15deg)}
+
+/* kanban */
+.kb{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media (max-width:900px){.kb{grid-template-columns:1fr}}
+.col{border:var(--b);border-radius:16px;background:var(--white);box-shadow:var(--sh);display:flex;flex-direction:column;min-height:280px}
+.col header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:var(--b);border-radius:13px 13px 0 0;font:400 22px/1 var(--cn)}
+.col .cnt{font:400 12px/1 var(--pix);background:var(--white);border:2px solid var(--ink);border-radius:8px;padding:4px 7px}
+.col .list{padding:12px;display:flex;flex-direction:column;gap:10px;flex:1;transition:background .2s;border-radius:0 0 13px 13px}
+.col .list.over{background:repeating-linear-gradient(45deg,rgba(18,18,18,.06) 0 10px,transparent 10px 20px)}
+.kc{background:var(--white);border:2.5px solid var(--ink);border-radius:12px;padding:10px 12px;cursor:grab;box-shadow:var(--sh-s);display:flex;flex-direction:column;gap:8px;transition:transform .15s}
+.kc:hover{transform:rotate(-1deg)}
+.kc.dragging{opacity:.4;transform:rotate(3deg)}
+.kc .kt{font-weight:700;line-height:1.35}
+.kc .km{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.kc .lbl{border:2px solid var(--ink);border-radius:6px;padding:3px 6px}
+.kc .mv{display:flex;gap:4px}
+.kc .mv button{width:28px;height:28px;border:2px solid var(--ink);border-radius:7px;background:var(--bg);cursor:pointer;font-weight:800;line-height:1}
+.kc .mv button:hover{background:var(--yel)}
+.addk{display:flex;gap:8px;padding:0 12px 12px}
+.addk input{flex:1;min-width:0;border:2.5px solid var(--ink);border-radius:10px;padding:8px 10px;background:#fffbe8;outline:0}
+.addk input:focus{background:var(--white);box-shadow:var(--sh-s)}
+
+/* poll + progress */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media (max-width:900px){.two{grid-template-columns:1fr}}
+.card{background:var(--white);border:var(--b);border-radius:18px;box-shadow:var(--sh);padding:24px}
+.card h3{font:400 30px/1.1 var(--cn);margin:0 0 6px}
+.opt{position:relative;display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:10px;padding:13px 16px;border:2.5px solid var(--ink);border-radius:12px;background:var(--white);cursor:pointer;overflow:hidden;font-weight:700;text-align:left;isolation:isolate}
+.opt .fillb{position:absolute;inset:0;width:0;z-index:-1;transition:width 1s cubic-bezier(.3,1.4,.5,1)}
+.opt:hover:not(:disabled){transform:translateX(4px)}
+.opt:disabled{cursor:default}
+.opt .pct{font:400 13px/1 var(--pix)}
+.opt.mine{box-shadow:var(--sh-s)}
+.prog{height:34px;border:var(--b);border-radius:12px;background:var(--white);overflow:hidden;position:relative;margin:14px 0 6px}
+.prog i{position:absolute;inset:0;width:0;background:repeating-linear-gradient(-45deg,var(--grn) 0 14px,#23c985 14px 28px);border-right:var(--b);transition:width .8s cubic-bezier(.3,1.4,.5,1);animation:stripes 1s linear infinite;background-size:40px 40px}
+@keyframes stripes{to{background-position:40px 0}}
+.prog b{position:absolute;inset:0;display:grid;place-items:center;font:400 14px/1 var(--pix)}
+.ms{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
+.ms label{display:flex;gap:12px;align-items:center;cursor:pointer;padding:8px 10px;border:2px solid var(--ink);border-radius:10px;transition:background .2s}
+.ms label:hover{background:#fffbe8}
+.ms input{appearance:none;-webkit-appearance:none;width:24px;height:24px;border:2.5px solid var(--ink);border-radius:7px;background:var(--white);margin:0;display:grid;place-items:center;cursor:pointer;flex:none;transition:transform .2s cubic-bezier(.3,2,.5,1)}
+.ms input:checked{background:var(--grn);transform:rotate(-8deg)}
+.ms input:checked::after{content:"✓";font-weight:900;font-size:15px}
+.ms input:checked+span{text-decoration:line-through;text-decoration-thickness:2px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media (max-width:820px){.stats{grid-template-columns:1fr 1fr}}
+.stat{border:var(--b);border-radius:16px;padding:18px;box-shadow:var(--sh);transition:transform .25s cubic-bezier(.3,2,.5,1)}
+.stat:hover{transform:rotate(-2deg) scale(1.03)}
+.stat b{display:block;font:400 clamp(34px,4.4vw,54px)/1 var(--display);font-variant-numeric:tabular-nums}
+
+/* faq */
+.faq{display:grid;gap:12px}
+.faq details{border:var(--b);border-radius:14px;background:var(--white);box-shadow:var(--sh-s);transition:box-shadow .2s}
+.faq details[open]{box-shadow:var(--sh);background:#fffbe8}
+.faq summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;justify-content:space-between;gap:14px;align-items:center;font-weight:800;font-size:17px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";width:32px;height:32px;flex:none;border:2.5px solid var(--ink);border-radius:9px;display:grid;place-items:center;background:var(--yel);font-size:20px;transition:transform .3s cubic-bezier(.3,2,.5,1)}
+.faq details[open] summary::after{transform:rotate(135deg);background:var(--pink)}
+.faq p{margin:0;padding:0 18px 18px}
+
+/* stepper form */
+.steps{display:flex;gap:0;margin-bottom:22px}
+.steps div{flex:1;display:flex;align-items:center;gap:8px}
+.steps span{width:36px;height:36px;border:var(--b);border-radius:50%;display:grid;place-items:center;font:400 14px/1 var(--display);background:var(--white);flex:none;transition:background .3s,transform .3s cubic-bezier(.3,2,.5,1)}
+.steps div.on span{background:var(--yel);transform:scale(1.15)}
+.steps div.done span{background:var(--grn)}
+.steps i{flex:1;height:4px;background:var(--ink);opacity:.2;border-radius:2px}
+.steps div.done i{opacity:1}
+.steps div:last-child{flex:none}
+.fs{display:none;animation:slidein .35s cubic-bezier(.3,1.4,.5,1)}
+.fs.on{display:block}
+@keyframes slidein{from{opacity:0;transform:translateX(30px)}}
+.fld{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.fld label{font-weight:800}
+.fld input,.fld textarea{border:var(--b);border-radius:12px;padding:12px 14px;background:#fffbe8;outline:0;transition:box-shadow .15s,transform .15s}
+.fld input:focus,.fld textarea:focus{background:var(--white);box-shadow:var(--sh-s);transform:translate(-2px,-2px)}
+.fld.bad input,.fld.bad textarea{background:#ffe1ee}
+.fld .err{font-size:13px;font-weight:700;color:#c2185b;min-height:1.2em}
+.sel{position:relative}
+.sel>button{width:100%;display:flex;justify-content:space-between;align-items:center;border:var(--b);border-radius:12px;padding:12px 14px;background:#fffbe8;cursor:pointer;font-weight:700;text-align:left}
+.sel>button::after{content:"▾";transition:transform .25s}
+.sel.open>button::after{transform:rotate(180deg)}
+.sel ul{position:absolute;left:0;right:0;top:calc(100% + 8px);list-style:none;margin:0;padding:6px;background:var(--white);border:var(--b);border-radius:12px;box-shadow:var(--sh);z-index:10;display:none;transform-origin:top;animation:drop .25s cubic-bezier(.3,1.8,.5,1)}
+.sel.open ul{display:block}
+@keyframes drop{from{transform:scaleY(.6);opacity:0}}
+.sel li{padding:10px 12px;border-radius:8px;cursor:pointer;font-weight:600;display:flex;gap:10px;align-items:center}
+.sel li:hover,.sel li.act{background:var(--yel)}
+.sel li[aria-selected="true"]::after{content:"✓";margin-left:auto;font-weight:900}
+.chipset{display:flex;flex-wrap:wrap;gap:8px}
+.chipset input{position:absolute;opacity:0;pointer-events:none}
+.chipset label{border:2.5px solid var(--ink);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:700;background:var(--white);transition:.15s}
+.chipset input:checked+label{background:var(--pink);box-shadow:var(--sh-s);transform:translate(-2px,-2px)}
+.chipset input:focus-visible+label{outline:3px dashed var(--blu);outline-offset:3px}
+.review{border:2.5px dashed var(--ink);border-radius:12px;padding:14px;background:#fffbe8;line-height:1.9}
+
+/* footer */
+footer{background:var(--ink);color:var(--bg);padding:40px clamp(16px,4vw,48px) calc(40px + env(safe-area-inset-bottom,0px));margin-top:40px}
+footer .max{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+footer .big{font:400 clamp(30px,5vw,56px)/1 var(--cn);color:var(--yel)}
+
+/* toast, modal, tooltip, confetti */
+.toasts{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:95;display:flex;flex-direction:column;gap:10px;width:min(340px,calc(100% - 32px))}
+.toast{border:var(--b);border-radius:14px;padding:12px 14px;box-shadow:var(--sh);display:flex;gap:10px;align-items:center;font-weight:700;animation:bounce .5s cubic-bezier(.3,2,.5,1);background:var(--white)}
+.toast .ic{width:32px;height:32px;border:2.5px solid var(--ink);border-radius:9px;display:grid;place-items:center;flex:none}
+.toast.out{animation:bye .3s forwards}
+@keyframes bounce{from{transform:translateY(60px) rotate(-6deg);opacity:0}}
+@keyframes bye{to{transform:translateX(-120%) rotate(-10deg)}}
+.ov{position:fixed;inset:0;z-index:90;background:rgba(18,18,18,.5);display:grid;place-items:center;padding:16px;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.modal{width:min(460px,100%);background:var(--yel);border:var(--b);border-radius:20px;box-shadow:12px 12px 0 var(--ink);padding:26px;text-align:center;animation:pop .5s cubic-bezier(.3,2,.5,1)}
+@keyframes pop{from{transform:scale(.3) rotate(-20deg);opacity:0}}
+.modal .trophy{width:96px;height:96px;margin:0 auto 12px;border:var(--b);border-radius:24px;background:var(--white);display:grid;place-items:center;font-size:50px;transform:rotate(-6deg);animation:wob 2s ease-in-out infinite}
+@keyframes wob{50%{transform:rotate(6deg) scale(1.05)}}
+.modal h3{font:400 34px/1.1 var(--cn);margin:6px 0}
+[data-tip]{position:relative}
+[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) scale(.6);background:var(--ink);color:var(--yel);font:400 12px/1 var(--pix);padding:7px 9px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s cubic-bezier(.3,2,.5,1);z-index:20}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1;transform:translateX(-50%) scale(1)}
+.conf{position:fixed;left:0;top:0;width:10px;height:14px;border:2px solid var(--ink);z-index:99;pointer-events:none;border-radius:2px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}}
+[id]{scroll-margin-top:96px}
+</style>
+
+<div class="ticker" aria-hidden="true"><div class="tk" id="tk"></div></div>
+<div class="wrap nav"><div class="max navin">
+  <a class="logo" href="#top"><i>柚</i>AYOU.GAMES</a>
+  <ul><li><a href="#toybox">玩具箱</a></li><li><a href="#games">游戏</a></li><li><a href="#devlog">开发日志</a></li><li><a href="#poll">投票</a></li><li><a href="#hello">打招呼</a></li></ul>
+  <a class="b pk sm" href="#hello">合作 ✦</a>
+</div></div>
+
+<main id="top">
+<div class="wrap"><div class="max hero" id="toybox">
+  <div>
+    <span class="hi"><span class="wave">👋</span>嗨，我是阿柚</span>
+    <h1 id="h1"><span>独立游戏</span><br><span>玩具制造者</span></h1>
+    <p class="lead">一个人做游戏的第 6 年。我做<mark>小而怪</mark>的游戏：让猫送快递、让幽灵学游泳、让青蛙参加选秀。右边这个箱子里的玩具是真的——抓起来扔扔看。</p>
+    <div class="row">
+      <a class="b lg" href="#games">玩我的游戏 →</a>
+      <button class="b lg wh" id="dumpBtn">再倒一箱 ⬇</button>
+    </div>
+    <div class="stickers" id="stickers">
+      <div class="stk" style="left:62%;top:26px;background:var(--grn);transform:rotate(8deg)">Steam<br>好评 96%</div>
+      <div class="stk" style="left:82%;top:-20px;background:var(--pink);transform:rotate(-10deg)">Game Jam<br>冠军 ×3</div>
+    </div>
+  </div>
+  <div class="win" aria-label="3D 玩具箱">
+    <div class="tb"><i></i><i></i><i></i><b class="pix" style="margin-left:6px">toybox.exe</b><span class="pix" id="fps">-- fps</span></div>
+    <div class="stage" id="stage">
+      <canvas id="toy" aria-label="可以拖拽投掷的 3D 玩具"></canvas>
+      <div class="hud pix"><span id="cnt">玩具 0</span><span id="thr">扔出 0 次</span></div>
+    </div>
+    <div class="ctl">
+      <button class="b sm" id="bDump">+ 倒一箱</button>
+      <button class="b sm pk" id="bQuake">地震!</button>
+      <button class="b sm gr" id="bMoon" aria-pressed="false">月球重力</button>
+      <button class="b sm wh" id="bClear">清空</button>
+    </div>
+  </div>
+</div></div>
+
+<section class="wrap" id="games"><div class="max">
+  <div class="sh"><h2>我做的游戏 <span class="tag">6 GAMES</span></h2><p>封面是程序生成的像素画。点星星可以给游戏打分（只存在你的浏览器里）。</p></div>
+  <div class="tabs" role="tablist" id="gtabs"></div>
+  <div class="games" id="glist"></div>
+</div></section>
+
+<section class="wrap" style="padding-top:0"><div class="max">
+  <div class="stats" id="stats">
+    <div class="stat" style="background:var(--yel)"><b data-n="412000">0</b><span class="pix">总下载</span></div>
+    <div class="stat" style="background:var(--pink)"><b data-n="96">0</b><span class="pix">% Steam 好评</span></div>
+    <div class="stat" style="background:var(--grn)"><b data-n="38">0</b><span class="pix">参加过的 Game Jam</span></div>
+    <div class="stat" style="background:var(--lil)"><b data-n="2190">0</b><span class="pix">杯咖啡</span></div>
+  </div>
+</div></section>
+
+<section class="wrap" id="devlog"><div class="max">
+  <div class="sh"><h2>开发日志看板 <span class="tag">KANBAN</span></h2><p>《猫咪快递》现在的任务。卡片可以拖到别的列，或者用 ← → 按钮移动；也可以加一张新卡片。</p></div>
+  <div class="kb" id="kb"></div>
+</div></section>
+
+<section class="wrap" id="poll"><div class="max">
+  <div class="two">
+    <div class="card" style="background:var(--white)">
+      <h3>下一作做什么？</h3><p style="margin:0">投一票，结果立刻出来。每个浏览器一票。</p>
+      <div id="pollOpts"></div>
+      <p class="pix" id="pollMeta" style="margin:14px 0 0;opacity:.7"></p>
+    </div>
+    <div class="card" style="background:var(--white)">
+      <h3>《猫咪快递》进度</h3><p style="margin:0">勾选里程碑，进度条会跟着涨。Early Access 目标：2026 年 12 月 24 日。</p>
+      <div class="prog"><i id="progI"></i><b id="progB">0%</b></div>
+      <ul class="ms" id="ms"></ul>
+    </div>
+  </div>
+</div></section>
+
+<section class="wrap"><div class="max">
+  <div class="sh"><h2>你可能想问 <span class="tag">FAQ</span></h2></div>
+  <div class="faq">
+    <details open><summary>一个人真的能做完一款游戏吗？</summary><p>能，只要足够小。我的规则是：第一个可玩版本必须在 2 周内出来，否则就砍功能。《猫咪快递》的第一个原型只有一只方块猫和一个箱子。</p></details>
+    <details><summary>用什么引擎？</summary><p>Godot 4 为主，Game Jam 偶尔用 PICO-8。这个页面上的玩具箱用的是 Three.js，物理是手写的（大约 80 行）。</p></details>
+    <details><summary>接外包吗？</summary><p>接一些：品牌小游戏、展会互动装置、给别的独立团队做关卡设计顾问。在下面打个招呼就好。</p></details>
+    <details><summary>可以做游戏的实况吗？</summary><p>当然！所有已发售的游戏都可以自由直播和做视频，带不带链接都行，带的话我会很开心。</p></details>
+  </div>
+</div></section>
+
+<section class="wrap" id="hello"><div class="max">
+  <div class="two">
+    <div>
+      <div class="sh" style="margin-bottom:18px"><h2>打个招呼 <span class="tag">3 STEPS</span></h2></div>
+      <p style="font-size:18px;margin-top:0">合作、试玩邀请、或者只是想给猫咪快递提个关卡点子，都欢迎。</p>
+      <div class="card" style="background:var(--grn);margin-top:18px">
+        <div class="pix">邮箱</div>
+        <div style="font:400 clamp(22px,3vw,30px)/1.3 var(--display);word-break:break-all" id="mail">hi@ayou.games</div>
+        <div class="row" style="margin-top:14px"><button class="b wh sm" id="copyMail">复制邮箱</button><span class="pix" data-tip="通常 48 小时内" tabindex="0" style="border-bottom:2px dashed var(--ink);cursor:help">回复速度？</span></div>
+      </div>
+    </div>
+    <form class="card" id="wiz" novalidate>
+      <div class="steps" id="steps"><div class="on"><span>1</span><i></i></div><div><span>2</span><i></i></div><div><span>3</span></div></div>
+      <div class="fs on" data-s="0">
+        <div class="fld"><label for="wn">怎么称呼你？</label><input id="wn" placeholder="比如：小林"><span class="err"></span></div>
+        <div class="fld"><label for="we">邮箱</label><input id="we" type="email" placeholder="you@studio.com"><span class="err"></span></div>
+      </div>
+      <div class="fs" data-s="1">
+        <div class="fld"><label id="selL">想聊什么？</label>
+          <div class="sel" id="sel"><button type="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="selL">请选择…</button>
+            <ul role="listbox" tabindex="-1"><li role="option" data-v="品牌小游戏">🎮 品牌小游戏</li><li role="option" data-v="展会互动装置">🕹️ 展会互动装置</li><li role="option" data-v="关卡设计顾问">🧩 关卡设计顾问</li><li role="option" data-v="就是想打个招呼">👋 就是想打个招呼</li></ul></div>
+          <span class="err" id="selErr"></span></div>
+        <div class="fld"><label>感兴趣的风格（可多选）</label>
+          <div class="chipset"><input type="checkbox" id="c1" value="像素"><label for="c1">像素</label><input type="checkbox" id="c2" value="低多边形"><label for="c2">低多边形</label><input type="checkbox" id="c3" value="手绘"><label for="c3">手绘</label><input type="checkbox" id="c4" value="怪怪的"><label for="c4">怪怪的</label></div></div>
+        <div class="fld"><label for="wm">说说看</label><textarea id="wm" rows="3" placeholder="预算、时间、或者一个疯狂的点子"></textarea></div>
+      </div>
+      <div class="fs" data-s="2"><div class="review" id="review"></div></div>
+      <div class="row" style="justify-content:space-between;margin-top:8px">
+        <button type="button" class="b wh" id="wBack" disabled>← 上一步</button>
+        <button type="submit" class="b pk" id="wNext">下一步 →</button>
+      </div>
+    </form>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="max"><span class="big">做点好玩的东西吧！</span><span class="pix">© 2026 阿柚 · 物理是手写的 · 玩具请轻拿轻放</span></div></footer>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const COLORS = ['#ffd23f', '#ff6fb5', '#2ee59d', '#ff8a3d', '#4d7cff', '#b9a8ff'];
+const store = { get(k, d) { try { const v = localStorage.getItem('ayou:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('ayou:' + k, JSON.stringify(v)); } catch (e) { } } };
+
+/* ---------- toast, modal, confetti ---------- */
+function toast(msg, icon = '★', bg = 'var(--yel)') {
+  const el = document.createElement('div'); el.className = 'toast';
+  el.innerHTML = `<span class="ic" style="background:${bg}">${icon}</span><span></span>`; el.lastChild.textContent = msg;
+  $('#toasts').append(el); setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3000);
+}
+function confetti(x = innerWidth / 2, y = innerHeight / 2, n = 40) {
+  if (reduce) return;
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('i'); c.className = 'conf'; c.style.background = COLORS[i % 6]; document.body.append(c);
+    const a = Math.random() * Math.PI * 2, v = 6 + Math.random() * 10; let vx = Math.cos(a) * v, vy = Math.sin(a) * v - 8, px = x, py = y, r = 0, vr = (Math.random() - .5) * 30, life = 0;
+    const step = () => { vy += .45; vx *= .98; px += vx; py += vy; r += vr; life++; c.style.transform = `translate(${px}px,${py}px) rotate(${r}deg)`; if (life < 110 && py < innerHeight + 40) requestAnimationFrame(step); else c.remove(); };
+    requestAnimationFrame(step);
+  }
+}
+const unlocked = new Set(store.get('ach', []));
+function achieve(id, title, desc, icon) {
+  if (unlocked.has(id)) return; unlocked.add(id); store.set('ach', [...unlocked]);
+  const ov = document.createElement('div'); ov.className = 'ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+  ov.innerHTML = `<div class="modal"><div class="trophy">${icon}</div><div class="pix">成就解锁 · ${unlocked.size}/4</div><h3>${title}</h3><p style="margin:0 0 18px">${desc}</p><button class="b wh">收下啦</button></div>`;
+  const close = () => { ov.remove(); removeEventListener('keydown', esc); };
+  const esc = e => e.key === 'Escape' && close();
+  ov.onclick = e => { if (e.target === ov || e.target.closest('button')) close(); };
+  addEventListener('keydown', esc); document.body.append(ov); $('button', ov).focus(); confetti(innerWidth / 2, innerHeight / 2, 60);
+}
+
+/* ---------- ticker + title ---------- */
+const TK = ['★ 《猫咪快递》EA 版 12.24 上线', '♥ Steam 愿望单 +1 就是最好的礼物', '▲ 本周 Devlog #47：箱子会漏了', '● 正在招募 30 名封闭测试玩家', '✦ 玩具箱里的东西可以扔'];
+$('#tk').innerHTML = [...TK, ...TK].map(t => `<span>${t}</span>`).join('');
+let ci = 0; $$('#h1 > span').forEach(sp => { const t = sp.textContent; sp.textContent = ''; [...t].forEach(ch => { const s = document.createElement('span'); s.className = 'ch c' + (ci++ % 5 + 1); s.textContent = ch; sp.append(s); }); });
+
+/* ---------- draggable stickers ---------- */
+$$('.stk').forEach(s => {
+  let sx, sy, ox = 0, oy = 0, rot = s.style.transform;
+  s.addEventListener('pointerdown', e => { sx = e.clientX - ox; sy = e.clientY - oy; s.setPointerCapture(e.pointerId); s.style.zIndex = 30; });
+  s.addEventListener('pointermove', e => { if (!s.hasPointerCapture(e.pointerId)) return; ox = e.clientX - sx; oy = e.clientY - sy; s.style.transform = `translate(${ox}px,${oy}px) ${rot} scale(1.08)`; });
+  s.addEventListener('pointerup', () => s.style.transform = `translate(${ox}px,${oy}px) ${rot}`);
+});
+
+/* ---------- 3D toybox with hand-rolled physics ---------- */
+const cv = $('#toy'), stage = $('#stage');
+let R = null;
+try { R = new THREE.WebGLRenderer({ canvas: cv, antialias: true }); R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap; } catch (e) { stage.insertAdjacentHTML('beforeend', '<p class="pix" style="position:absolute;inset:0;display:grid;place-items:center">WebGL 不可用</p>'); }
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#fdf6ff');
+const cam = new THREE.PerspectiveCamera(38, 1.25, .1, 100); cam.position.set(0, 11, 12.5); cam.lookAt(0, .5, 0);
+scene.add(new THREE.HemisphereLight('#ffffff', '#b9a8ff', .55));
+const sun = new THREE.DirectionalLight('#ffffff', .9); sun.position.set(5, 12, 6); sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9 }); sun.shadow.radius = 3; scene.add(sun);
+const grad = new THREE.DataTexture(new Uint8Array([90, 170, 255]), 3, 1, THREE.LuminanceFormat); grad.minFilter = grad.magFilter = THREE.NearestFilter; grad.needsUpdate = true;
+const BX = 6.2, BZ = 4.4;
+// floor with grid
+const fc = document.createElement('canvas'); fc.width = fc.height = 256; const fg = fc.getContext('2d');
+fg.fillStyle = '#fdf6ff'; fg.fillRect(0, 0, 256, 256); fg.strokeStyle = 'rgba(18,18,18,.22)'; fg.lineWidth = 3; for (let i = 0; i <= 256; i += 32) { fg.beginPath(); fg.moveTo(i, 0); fg.lineTo(i, 256); fg.moveTo(0, i); fg.lineTo(256, i); fg.stroke(); }
+const ft = new THREE.CanvasTexture(fc); ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(4, 3);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(BX * 2 + 6, BZ * 2 + 6), new THREE.MeshToonMaterial({ map: ft, gradientMap: grad })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+// box walls (chunky outlined rim)
+const wallMat = new THREE.MeshToonMaterial({ color: '#ffd23f', gradientMap: grad }), edgeMat = new THREE.LineBasicMaterial({ color: '#121212' });
+[[0, -BZ - .25, BX * 2 + 1, .5], [0, BZ + .25, BX * 2 + 1, .5], [-BX - .25, 0, .5, BZ * 2], [BX + .25, 0, .5, BZ * 2]].forEach(([x, z, w, d], i) => {
+  const g = new THREE.BoxGeometry(w, i < 1 ? 1.4 : .7, d); const m = new THREE.Mesh(g, i < 1 ? new THREE.MeshToonMaterial({ color: '#ff6fb5', gradientMap: grad }) : wallMat);
+  m.position.set(x, g.parameters.height / 2, z); m.castShadow = m.receiveShadow = true; m.add(new THREE.LineSegments(new THREE.EdgesGeometry(g), edgeMat)); scene.add(m);
+});
+const GEOS = [
+  () => [new THREE.BoxGeometry(1.1, 1.1, 1.1), .72], () => [new THREE.SphereGeometry(.62, 24, 16), .62], () => [new THREE.CylinderGeometry(.5, .5, 1.1, 20), .66],
+  () => [new THREE.ConeGeometry(.62, 1.2, 20), .66], () => [new THREE.TorusGeometry(.48, .22, 12, 28), .7], () => [new THREE.DodecahedronGeometry(.64), .64], () => [new THREE.OctahedronGeometry(.7), .66],
+];
+const outlineMat = new THREE.MeshBasicMaterial({ color: '#121212', side: THREE.BackSide });
+const bodies = [];
+function spawn(n = 6) {
+  for (let i = 0; i < n && bodies.length < 42; i++) {
+    const [g, r] = GEOS[(Math.random() * GEOS.length) | 0]();
+    const m = new THREE.Mesh(g, new THREE.MeshToonMaterial({ color: COLORS[(Math.random() * 6) | 0], gradientMap: grad }));
+    const ol = new THREE.Mesh(g, outlineMat); ol.scale.setScalar(1.13); m.add(ol);
+    m.castShadow = true; m.receiveShadow = true;
+    m.position.set((Math.random() - .5) * BX * 1.4, 7 + Math.random() * 4 + i * .6, (Math.random() - .5) * BZ * 1.2);
+    m.rotation.set(Math.random() * 6, Math.random() * 6, 0);
+    const s = .85 + Math.random() * .35; m.scale.setScalar(s);
+    m.userData = { v: new THREE.Vector3((Math.random() - .5) * 2, 0, (Math.random() - .5) * 2), r: r * s, w: new THREE.Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).multiplyScalar(4) };
+    scene.add(m); bodies.push(m);
+  }
+  $('#cnt').textContent = '玩具 ' + bodies.length;
+}
+let G = -22, throws = 0;
+const tmp = new THREE.Vector3(), q = new THREE.Quaternion(), axis = new THREE.Vector3();
+function physics(dt) {
+  for (const b of bodies) {
+    const u = b.userData; if (b === held) continue;
+    u.v.y += G * dt; b.position.addScaledVector(u.v, dt);
+    const r = u.r;
+    if (b.position.y < r) { b.position.y = r; if (u.v.y < 0) u.v.y *= -.42; u.v.x *= .9; u.v.z *= .9; u.w.multiplyScalar(.9);
+      // roll with velocity on floor
+      u.w.x = u.v.z / r; u.w.z = -u.v.x / r; }
+    if (b.position.x < -BX + r) { b.position.x = -BX + r; u.v.x = Math.abs(u.v.x) * .6; }
+    if (b.position.x > BX - r) { b.position.x = BX - r; u.v.x = -Math.abs(u.v.x) * .6; }
+    if (b.position.z < -BZ + r) { b.position.z = -BZ + r; u.v.z = Math.abs(u.v.z) * .6; }
+    if (b.position.z > BZ - r) { b.position.z = BZ - r; u.v.z = -Math.abs(u.v.z) * .6; }
+    const wl = u.w.length(); if (wl > 1e-4) { axis.copy(u.w).divideScalar(wl); q.setFromAxisAngle(axis, wl * dt); b.quaternion.premultiply(q); }
+  }
+  for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) {
+    const a = bodies[i], c = bodies[j], ua = a.userData, uc = c.userData;
+    tmp.subVectors(c.position, a.position); const d = tmp.length(), min = ua.r + uc.r;
+    if (d > 0 && d < min) {
+      tmp.divideScalar(d); const pen = (min - d);
+      const ia = a === held ? 0 : 1, ic = c === held ? 0 : 1, tot = ia + ic || 1;
+      a.position.addScaledVector(tmp, -pen * ia / tot); c.position.addScaledVector(tmp, pen * ic / tot);
+      const rel = tmp.dot(new THREE.Vector3().subVectors(uc.v, ua.v));
+      if (rel < 0) { const imp = -1.35 * rel / 2; ua.v.addScaledVector(tmp, -imp * ia); uc.v.addScaledVector(tmp, imp * ic); ua.w.x += tmp.z * imp; uc.w.z -= tmp.x * imp; }
+    }
+  }
+}
+// drag & throw
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -2.2), hitP = new THREE.Vector3();
+let held = null, lastP = new THREE.Vector3(), relV = new THREE.Vector3(), lastT = 0;
+const setNdc = e => { const r = cv.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, cam); };
+cv.addEventListener('pointerdown', e => {
+  setNdc(e); const h = ray.intersectObjects(bodies, false)[0]; if (!h) return;
+  held = h.object; cv.setPointerCapture(e.pointerId); cv.classList.add('grab'); lastP.copy(held.position); lastT = performance.now(); relV.set(0, 0, 0);
+  held.userData.w.set(2, 3, 1);
+});
+cv.addEventListener('pointermove', e => {
+  setNdc(e); if (!held) { cv.style.cursor = ray.intersectObjects(bodies, false).length ? 'grab' : 'default'; return; }
+  if (ray.ray.intersectPlane(plane, hitP)) {
+    hitP.x = THREE.MathUtils.clamp(hitP.x, -BX + .6, BX - .6); hitP.z = THREE.MathUtils.clamp(hitP.z, -BZ + .6, BZ - .6);
+    const now = performance.now(), dt = Math.max((now - lastT) / 1000, .001);
+    relV.subVectors(hitP, lastP).divideScalar(dt).multiplyScalar(.6).add(relV.multiplyScalar(.4)); lastP.copy(hitP); lastT = now;
+    held.position.lerp(new THREE.Vector3(hitP.x, 2.2, hitP.z), .6);
+  }
+});
+const release = () => {
+  if (!held) return; const u = held.userData; u.v.copy(relV).clampLength(0, 28); u.v.y = Math.max(u.v.y, 4 + relV.length() * .15);
+  if (relV.length() > 6) { throws++; $('#thr').textContent = '扔出 ' + throws + ' 次'; if (throws === 5) achieve('thrower', '投掷新手', '你已经扔了 5 个玩具。它们不会疼的。', '🥏'); }
+  held = null; cv.classList.remove('grab');
+};
+cv.addEventListener('pointerup', release); cv.addEventListener('pointercancel', release);
+function size() { if (!R) return; const r = stage.getBoundingClientRect(); R.setPixelRatio(Math.min(devicePixelRatio, 2)); R.setSize(r.width, r.height, false); cam.aspect = r.width / r.height; cam.updateProjectionMatrix(); }
+addEventListener('resize', size); size();
+let visible = true; new IntersectionObserver(es => visible = es[0].isIntersecting).observe(stage);
+let last = performance.now(), fA = 0, fN = 0;
+function loop(now) {
+  const dt = Math.min((now - last) / 1000, 1 / 30); last = now;
+  if (R && visible) {
+    const sub = 3; for (let i = 0; i < sub; i++) physics(dt / sub);
+    if (held) held.rotation.y += dt * 3;
+    R.render(scene, cam);
+    fA += dt; fN++; if (fA > 1) { $('#fps').textContent = Math.round(fN / fA) + ' fps'; fA = fN = 0; }
+  }
+  requestAnimationFrame(loop);
+}
+spawn(14); requestAnimationFrame(loop);
+const dump = () => { if (bodies.length >= 42) return toast('箱子满啦！先清空一下', '!', 'var(--pink)'); spawn(8); if (bodies.length >= 30) achieve('hoarder', '收藏家', '箱子里堆了 30 个以上的玩具。', '📦'); };
+$('#bDump').onclick = dump; $('#dumpBtn').onclick = () => { dump(); $('#toybox').scrollIntoView({ behavior: 'smooth' }); };
+$('#bQuake').onclick = () => { bodies.forEach(b => { b.userData.v.add(new THREE.Vector3((Math.random() - .5) * 10, 8 + Math.random() * 8, (Math.random() - .5) * 8)); b.userData.w.set(Math.random() * 8, Math.random() * 8, Math.random() * 8); }); stage.animate?.([{ transform: 'translate(0,0)' }, { transform: 'translate(-6px,3px)' }, { transform: 'translate(6px,-3px)' }, { transform: 'translate(0,0)' }], { duration: 300, iterations: 2 }); };
+$('#bMoon').onclick = e => { const on = G === -22; G = on ? -3.5 : -22; e.currentTarget.setAttribute('aria-pressed', on); e.currentTarget.textContent = on ? '地球重力' : '月球重力'; toast(on ? '重力切换为月球：1.62 m/s²' : '回到地球：9.8 m/s²', on ? '☾' : '●', on ? 'var(--lil)' : 'var(--grn)'); if (on) achieve('moon', '登月成功', '你把玩具箱搬到了月球上。', '🌙'); };
+$('#bClear').onclick = () => { bodies.splice(0).forEach(b => scene.remove(b)); $('#cnt').textContent = '玩具 0'; };
+
+/* ---------- games ---------- */
+const SPR = {
+  cat: ['..#...#.', '.#o#.#o#', '.#######', '#.w#w#.#', '#.#####.', '.######.', '.#.##.#.', '........'],
+  ghost: ['..####..', '.######.', '##w##w##', '##k##k##', '########', '########', '#.##.##.', '........'],
+  frog: ['.ww..ww.', 'wkw##wkw', '########', '#r####r#', '########', '.######.', '##....##', '........'],
+  ship: ['...##...', '..####..', '..#ww#..', '.######.', '########', '#.#..#.#', '..o..o..', '........'],
+};
+const GAMES = [
+  { t: '猫咪快递', s: 'dev', st: '开发中', d: '你是一只快递猫。包裹比你大三倍，而且每个客户都住在屋顶上。', p: ['PC', 'Switch'], sp: 'cat', sky: ['#4d7cff', '#b9a8ff'], c: '#ffd23f', g: '#2ee59d' },
+  { t: '幽灵游泳课', s: 'out', st: '已发售', d: '一个死于溺水的幽灵决定学会游泳。物理解谜，38 个关卡。', p: ['PC', 'Mac'], sp: 'ghost', sky: ['#121212', '#4d7cff'], c: '#ffffff', g: '#b9a8ff' },
+  { t: '青蛙选秀', s: 'out', st: '已发售', d: '节奏游戏。评委是一只鹭，你最好别唱跑调。', p: ['PC', 'iOS', 'Android'], sp: 'frog', sky: ['#ff6fb5', '#ffd23f'], c: '#2ee59d', g: '#ff8a3d' },
+  { t: '48 小时太空站', s: 'jam', st: 'Game Jam', d: 'Ludum Dare 54 第 1 名：用 5 个格子管理整个空间站。', p: ['Web'], sp: 'ship', sky: ['#121212', '#b9a8ff'], c: '#ff8a3d', g: '#4d7cff' },
+  { t: '猫咪快递 · 原型', s: 'jam', st: 'Game Jam', d: '一切的起点。一只方块猫、一个箱子、一个屋顶。', p: ['Web'], sp: 'cat', sky: ['#ffd23f', '#ff8a3d'], c: '#121212', g: '#ff6fb5' },
+  { t: '雨夜便利店', s: 'dev', st: '开发中', d: '在凌晨三点的便利店值夜班，客人们都有点奇怪。', p: ['PC'], sp: 'ghost', sky: ['#2b2b6e', '#4d7cff'], c: '#2ee59d', g: '#121212' },
+];
+function drawCover(cv, g) {
+  const x = cv.getContext('2d'), W = 32, H = 20; cv.width = W; cv.height = H;
+  for (let y = 0; y < H; y++) { x.fillStyle = y < H * .45 ? g.sky[0] : g.sky[1]; if (y % 3 === 0 && y < 12) x.globalAlpha = .9; x.fillRect(0, y, W, 1); x.globalAlpha = 1; }
+  x.fillStyle = '#ffffff'; for (let i = 0; i < 9; i++) x.fillRect((i * 7 + g.t.length * 3) % W, (i * 5) % 8, 1, 1);
+  x.fillStyle = g.g; for (let i = 0; i < W; i++) { const h = 3 + ((Math.sin(i * .7 + g.t.length) + 1) * 1.5 | 0); x.fillRect(i, H - h, 1, h); }
+  x.fillStyle = '#121212'; x.fillRect(0, H - 2, W, 2);
+  const s = SPR[g.sp], ox = 12, oy = H - 12;
+  s.forEach((row, yy) => [...row].forEach((ch, xx) => { if (ch === '.') return; x.fillStyle = ch === '#' ? g.c : ch === 'w' ? '#ffffff' : ch === 'k' ? '#121212' : ch === 'o' ? '#ff6fb5' : '#ff3355'; x.fillRect(ox + xx, oy + yy, 1, 1); }));
+}
+const ratings = store.get('rate', {});
+const glist = $('#glist');
+GAMES.forEach((g, i) => {
+  const el = document.createElement('article'); el.className = 'game'; el.dataset.s = g.s;
+  el.innerHTML = `<div class="cover"><canvas></canvas><span class="st pix" style="background:${g.s === 'out' ? 'var(--grn)' : g.s === 'dev' ? 'var(--yel)' : 'var(--pink)'}">${g.st}</span><button class="play" aria-label="试玩 ${g.t}">▶</button></div>
+  <div class="gb"><h3>${g.t}</h3><p>${g.d}</p><div class="gm"><div class="plats">${g.p.map(p => `<span class="plat pix">${p}</span>`).join('')}</div><div class="rate" role="group" aria-label="给 ${g.t} 打分">${[1, 2, 3, 4, 5].map(n => `<button aria-label="${n} 星" data-n="${n}">★</button>`).join('')}</div></div></div>`;
+  drawCover($('canvas', el), g);
+  const stars = $$('.rate button', el);
+  const paint = v => stars.forEach((b, k) => b.classList.toggle('on', k < v));
+  paint(ratings[i] || 0);
+  stars.forEach(b => { b.onmouseenter = () => paint(+b.dataset.n); b.onclick = () => { ratings[i] = +b.dataset.n; store.set('rate', ratings); paint(ratings[i]); toast(`给《${g.t}》打了 ${b.dataset.n} 星，谢谢！`, '★'); }; });
+  $('.rate', el).onmouseleave = () => paint(ratings[i] || 0);
+  $('.play', el).onclick = e => { toast(`《${g.t}》的试玩版还在路上（演示）`, '▶', 'var(--grn)'); confetti(e.clientX, e.clientY, 24); };
+  glist.append(el);
+});
+const TABS = [['all', '全部'], ['out', '已发售'], ['dev', '开发中'], ['jam', 'Game Jam']];
+TABS.forEach(([k, n], i) => {
+  const b = document.createElement('button'); b.className = 'tab'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', i === 0);
+  b.innerHTML = `${n}<span class="n">${k === 'all' ? GAMES.length : GAMES.filter(g => g.s === k).length}</span>`;
+  b.onclick = () => { $$('.tab').forEach(x => x.setAttribute('aria-selected', x === b)); $$('.game').forEach(g => { const show = k === 'all' || g.dataset.s === k; if (show && g.hidden) { g.hidden = false; g.animate?.([{ transform: 'scale(.8) rotate(-4deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 400, easing: 'cubic-bezier(.3,1.8,.5,1)' }); } else g.hidden = !show; }); };
+  $('#gtabs').append(b);
+});
+
+/* ---------- kanban ---------- */
+const COLS = [['idea', '想法 💡', 'var(--yel)'], ['doing', '制作中 🔨', 'var(--pink)'], ['done', '完成 ✅', 'var(--grn)']];
+const LBL = { 美术: 'var(--lil)', 程序: 'var(--blu)', 关卡: 'var(--org)', 音效: 'var(--grn)' };
+let cards = store.get('kb', [
+  { t: '猫可以抓住屋檐吊着', c: 'idea', l: '程序' }, { t: '雨天关卡：包裹会被淋湿', c: 'idea', l: '关卡' }, { t: '箱子掉落的「咚」声要更可爱', c: 'idea', l: '音效' },
+  { t: '第 3 章屋顶的 tileset', c: 'doing', l: '美术' }, { t: '修复：猫卡在烟囱里', c: 'doing', l: '程序' },
+  { t: '主菜单音乐', c: 'done', l: '音效' }, { t: '快递单 UI', c: 'done', l: '美术' },
+]);
+const kb = $('#kb'); let dragId = null;
+function renderKb() {
+  kb.innerHTML = '';
+  COLS.forEach(([id, name, bg], ci) => {
+    const col = document.createElement('div'); col.className = 'col';
+    const list = cards.map((c, i) => ({ ...c, i })).filter(c => c.c === id);
+    col.innerHTML = `<header style="background:${bg}">${name}<span class="cnt">${list.length}</span></header><div class="list" data-c="${id}"></div>${ci === 0 ? '<form class="addk"><input placeholder="新点子…" aria-label="新卡片内容" maxlength="40"><button class="b sm">＋</button></form>' : ''}`;
+    const L = $('.list', col);
+    list.forEach(c => {
+      const k = document.createElement('div'); k.className = 'kc'; k.draggable = true; k.dataset.i = c.i;
+      k.innerHTML = `<div class="kt"></div><div class="km"><span class="lbl pix" style="background:${LBL[c.l] || 'var(--bg)'}">${c.l}</span><span class="mv">${ci > 0 ? `<button aria-label="移到左边一列" data-d="-1">←</button>` : ''}${ci < 2 ? `<button aria-label="移到右边一列" data-d="1">→</button>` : ''}</span></div>`;
+      $('.kt', k).textContent = c.t;
+      k.ondragstart = e => { dragId = c.i; k.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', c.t); } catch (er) { } };
+      k.ondragend = () => k.classList.remove('dragging');
+      $$('.mv button', k).forEach(b => b.onclick = () => moveCard(c.i, COLS[ci + +b.dataset.d][0]));
+      L.append(k);
+    });
+    L.ondragover = e => { e.preventDefault(); L.classList.add('over'); };
+    L.ondragleave = () => L.classList.remove('over');
+    L.ondrop = e => { e.preventDefault(); L.classList.remove('over'); if (dragId != null) moveCard(dragId, id); dragId = null; };
+    const f = $('form', col); if (f) f.onsubmit = e => { e.preventDefault(); const v = $('input', f).value.trim(); if (!v) return toast('先写点什么吧', '!', 'var(--pink)'); cards.push({ t: v, c: 'idea', l: ['美术', '程序', '关卡', '音效'][cards.length % 4] }); save(); toast('新点子已加入看板', '💡'); };
+    kb.append(col);
+  });
+}
+function moveCard(i, to) { const from = cards[i].c; cards[i].c = to; save(); if (to === 'done' && from !== 'done') { toast(`完成：${cards[i].t}`, '✓', 'var(--grn)'); confetti(innerWidth * .8, innerHeight * .5, 30); } }
+function save() { store.set('kb', cards); renderKb(); }
+renderKb();
+
+/* ---------- poll ---------- */
+const POLL = [['🐸 青蛙选秀 2', 412], ['🏪 雨夜便利店', 538], ['👻 幽灵游泳课 DLC', 217], ['🚀 太空站完整版', 301]];
+let myVote = store.get('vote', null);
+function renderPoll() {
+  const total = POLL.reduce((a, p) => a + p[1], 0) + (myVote != null ? 1 : 0);
+  $('#pollOpts').innerHTML = POLL.map((p, i) => { const v = p[1] + (myVote === i ? 1 : 0), pct = Math.round(v / total * 100); return `<button class="opt${myVote === i ? ' mine' : ''}" data-i="${i}" ${myVote != null ? 'disabled' : ''}><span class="fillb" style="background:${COLORS[i]}" data-w="${pct}"></span><span>${p[0]}${myVote === i ? ' ← 你的票' : ''}</span><span class="pct">${myVote != null ? pct + '%' : '投票'}</span></button>`; }).join('');
+  $('#pollMeta').textContent = myVote != null ? `共 ${total.toLocaleString()} 票 · 感谢投票` : `已有 ${total.toLocaleString()} 人投票`;
+  if (myVote != null) requestAnimationFrame(() => $$('.fillb').forEach(f => f.style.width = f.dataset.w + '%'));
+  $$('.opt').forEach(o => o.onclick = e => { myVote = +o.dataset.i; store.set('vote', myVote); renderPoll(); confetti(e.clientX, e.clientY, 36); toast('投票成功！', '✓', 'var(--grn)'); achieve('voter', '民主之光', '你为下一款游戏投了宝贵的一票。', '🗳️'); });
+}
+renderPoll();
+
+/* ---------- progress milestones ---------- */
+const MS = [['核心玩法：抓、跳、送', 1], ['第 1–2 章关卡', 1], ['第 3 章屋顶关卡', 0], ['猫咪换装系统', 0], ['Steam 页面与预告片', 1], ['封闭测试（30 人）', 0]];
+const msDone = store.get('ms', MS.map(m => m[1]));
+function renderMs() {
+  $('#ms').innerHTML = MS.map((m, i) => `<li><label><input type="checkbox" ${msDone[i] ? 'checked' : ''} data-i="${i}"><span>${m[0]}</span></label></li>`).join('');
+  const pct = Math.round(msDone.filter(Boolean).length / MS.length * 100);
+  $('#progI').style.width = pct + '%'; $('#progB').textContent = pct + '%';
+  $$('#ms input').forEach(c => c.onchange = () => { msDone[c.dataset.i] = c.checked ? 1 : 0; store.set('ms', msDone); renderMs(); if (msDone.every(Boolean)) { toast('全部完成！可以上 EA 了', '🎉', 'var(--pink)'); confetti(); } });
+}
+renderMs();
+
+/* ---------- stats ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; io.unobserve(e.target); $$('b[data-n]', e.target).forEach(b => { const to = +b.dataset.n, t0 = performance.now(); const st = n => { const k = Math.min((n - t0) / 1400, 1); b.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString(); if (k < 1) requestAnimationFrame(st); }; requestAnimationFrame(st); }); }), { threshold: .3 });
+io.observe($('#stats'));
+
+/* ---------- custom select ---------- */
+const sel = $('#sel'), sbtn = $('button', sel), sul = $('ul', sel), opts = $$('li', sel); let sv = '', act = 0;
+const openSel = o => { sel.classList.toggle('open', o); sbtn.setAttribute('aria-expanded', o); if (o) { act = Math.max(0, opts.findIndex(l => l.dataset.v === sv)); hl(); } };
+const hl = () => opts.forEach((l, i) => l.classList.toggle('act', i === act));
+const pick = i => { sv = opts[i].dataset.v; sbtn.textContent = opts[i].textContent; opts.forEach((l, k) => l.setAttribute('aria-selected', k === i)); openSel(false); $('#selErr').textContent = ''; sbtn.focus(); };
+sbtn.onclick = () => openSel(!sel.classList.contains('open'));
+opts.forEach((l, i) => l.onclick = () => pick(i));
+sbtn.onkeydown = e => { if (!sel.classList.contains('open') && (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openSel(true); return; } if (!sel.classList.contains('open')) return; if (e.key === 'ArrowDown') { act = (act + 1) % opts.length; hl(); e.preventDefault(); } if (e.key === 'ArrowUp') { act = (act + opts.length - 1) % opts.length; hl(); e.preventDefault(); } if (e.key === 'Enter') { e.preventDefault(); pick(act); } if (e.key === 'Escape') openSel(false); };
+document.addEventListener('click', e => { if (!sel.contains(e.target)) openSel(false); });
+
+/* ---------- wizard form ---------- */
+let step = 0;
+const showStep = () => { $$('.fs').forEach(f => f.classList.toggle('on', +f.dataset.s === step)); $$('#steps > div').forEach((d, i) => { d.classList.toggle('on', i === step); d.classList.toggle('done', i < step); }); $('#wBack').disabled = step === 0; $('#wNext').textContent = step === 2 ? '发送 ✉' : '下一步 →'; };
+const chk = (id, fn, msg) => { const f = $('#' + id).closest('.fld'), bad = !fn($('#' + id).value.trim()); f.classList.toggle('bad', bad); $('.err', f).textContent = bad ? msg : ''; return !bad; };
+$('#wiz').onsubmit = e => {
+  e.preventDefault();
+  if (step === 0) { const a = chk('wn', v => v, '写个名字吧'), b = chk('we', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), '邮箱格式不对哦，例如 you@studio.com'); if (!(a && b)) return; }
+  if (step === 1) { if (!sv) { $('#selErr').textContent = '选一个话题吧'; return; } const styles = $$('.chipset input:checked').map(c => c.value); $('#review').innerHTML = `<b>称呼：</b>${esc($('#wn').value)}<br><b>邮箱：</b>${esc($('#we').value)}<br><b>话题：</b>${esc(sv)}<br><b>风格：</b>${styles.length ? styles.join('、') : '没选'}<br><b>留言：</b>${esc($('#wm').value || '（空）')}`; }
+  if (step === 2) { toast('演示页面：消息没有真的发出，请直接发邮件给我', '✉', 'var(--lil)'); confetti(); e.target.reset(); sv = ''; sbtn.textContent = '请选择…'; opts.forEach(l => l.removeAttribute('aria-selected')); step = 0; showStep(); return; }
+  step++; showStep();
+};
+$('#wBack').onclick = () => { step = Math.max(0, step - 1); showStep(); };
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+$('#copyMail').onclick = () => { const t = $('#mail').textContent; try { navigator.clipboard.writeText(t).then(() => toast('邮箱已复制', '✓', 'var(--grn)'), () => toast('复制被拦截了：' + t, '!', 'var(--pink)')); } catch (er) { toast('请手动复制：' + t, '!', 'var(--pink)'); } };
+})();
+</script>

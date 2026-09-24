@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>马特洪峰 Matterhorn</title>
+<meta name="description" content="Three.js 实时渲染的瑞士马特洪峰写实三维模型：程序化地形、物理大气散射、体积旗云、利菲尔湖倒影。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: rgba(14, 19, 26, 0.58);
+    --panel-line: rgba(255, 255, 255, 0.10);
+    --ink: #eef2f6;
+    --ink-2: rgba(238, 242, 246, 0.66);
+    --ink-3: rgba(238, 242, 246, 0.42);
+    --accent: #f2c98a;
+    --accent-2: #8fc3ff;
+  }
+  /* 刻意的单一深色设计：三维画面本身决定明暗，面板始终是深色玻璃 */
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; padding: 0 !important; background: var(--bg); color: var(--ink); font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif; }
+  #c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  #labels { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .label { position: absolute; left: 0; top: 0; transition: opacity .35s; white-space: nowrap; font-size: 11px; line-height: 1.25; text-shadow: 0 1px 3px rgba(0,0,0,.7); will-change: transform; }
+  .label::before { content: ''; position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.35); }
+  .label b, .label span { position: relative; display: block; left: 8px; top: -22px; }
+  .label b { font-weight: 500; }
+  .label span { color: var(--ink-2); font-size: 10px; font-variant-numeric: tabular-nums; }
+  .label.main b { font-size: 14px; font-weight: 700; color: #fff; }
+  .label.main::before { background: var(--accent); }
+  .label.town::before, .label.hut::before { background: var(--accent-2); width: 5px; height: 5px; }
+
+  .title { position: fixed; left: 24px; top: calc(20px + env(safe-area-inset-top, 0px)); pointer-events: none; }
+  .title h1 { margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 40px; letter-spacing: .5px; line-height: 1; text-shadow: 0 2px 16px rgba(0,0,0,.45); }
+  .title h1 small { font-family: 'Noto Sans SC', sans-serif; font-size: 18px; font-weight: 500; margin-left: 10px; letter-spacing: 3px; }
+  .title p { margin: 8px 0 0; font-size: 12px; color: var(--ink-2); letter-spacing: .4px; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+
+  .panel { position: fixed; right: 16px; top: calc(16px + env(safe-area-inset-top, 0px)); width: 272px; padding: 14px 16px 12px; border-radius: 14px; background: var(--panel); border: 1px solid var(--panel-line); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2); transition: transform .35s, opacity .35s; }
+  body.panel-hidden .panel { transform: translateX(calc(100% + 24px)); opacity: 0; }
+  .panel h2 { margin: 0 0 10px; font-size: 12px; font-weight: 500; letter-spacing: 2px; color: var(--ink-3); }
+  .row { margin: 0 0 11px; }
+  .row label { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink-2); margin-bottom: 5px; }
+  .row output { color: var(--ink); font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); height: 18px; margin: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: -2px 0 12px; }
+  .chips button, #views button { font: inherit; font-size: 11.5px; color: var(--ink); background: rgba(255,255,255,.07); border: 1px solid var(--panel-line); border-radius: 999px; padding: 4px 10px; cursor: pointer; transition: background .2s, border-color .2s; }
+  .chips button:hover, #views button:hover { background: rgba(255,255,255,.16); }
+  #views button.on { background: rgba(242, 201, 138, .22); border-color: rgba(242, 201, 138, .6); }
+  .checks { display: flex; gap: 16px; font-size: 12.5px; color: var(--ink-2); margin: 4px 0 10px; }
+  .checks label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  select { font: inherit; font-size: 12px; background: rgba(255,255,255,.08); color: var(--ink); border: 1px solid var(--panel-line); border-radius: 6px; padding: 2px 6px; }
+  .note { font-size: 10.5px; color: var(--ink-3); line-height: 1.5; margin-top: 8px; border-top: 1px solid var(--panel-line); padding-top: 8px; }
+  #views { position: fixed; left: 50%; bottom: calc(44px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 32px); padding: 6px; border-radius: 999px; background: var(--panel); border: 1px solid var(--panel-line); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  #views button { padding: 6px 13px; font-size: 12.5px; }
+  #hud { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); font-size: 11px; color: var(--ink-2); text-shadow: 0 1px 4px rgba(0,0,0,.8); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  #panel-toggle { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--panel-line); background: var(--panel); color: var(--ink); cursor: pointer; font-size: 15px; backdrop-filter: blur(10px); }
+
+  #loading { position: fixed; inset: 0; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 70%, #1d2733 0%, #07090c 70%); transition: opacity .8s; z-index: 10; }
+  body.ready #loading { opacity: 0; pointer-events: none; }
+  .ld { text-align: center; width: min(360px, 80vw); }
+  .ld svg { width: 120px; height: 80px; margin-bottom: 14px; opacity: .9; }
+  .ld h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 26px; margin: 0 0 14px; letter-spacing: 1px; }
+  #load-bar { height: 2px; background: rgba(255,255,255,.12); border-radius: 2px; overflow: hidden; }
+  #load-bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
+  #load-text { margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+
+  @media (max-width: 720px) {
+    .title { left: 16px; top: 14px; }
+    .title h1 { font-size: 28px; }
+    .title h1 small { font-size: 13px; }
+    .title p { display: none; }
+    .panel { top: 64px; right: 16px; left: 16px; width: auto; max-height: calc(100vh - 190px); overflow: auto; }
+    #views { left: 16px; right: 66px; bottom: calc(36px + env(safe-area-inset-bottom, 0px)); transform: none; max-width: none; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; border-radius: 14px; scrollbar-width: none; }
+    #views::-webkit-scrollbar { display: none; }
+    #views button { flex: none; padding: 6px 11px; font-size: 12px; }
+    #panel-toggle { bottom: calc(38px + env(safe-area-inset-bottom, 0px)); }
+    #hud { left: 16px; right: 16px; transform: none; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); font-size: 10px; text-align: center; overflow: hidden; text-overflow: ellipsis; }
+    .label span { display: none; }
+  }
+</style>
+</head>
+<body class="">
+<canvas id="c"></canvas>
+<div id="labels"></div>
+
+<div class="title">
+  <h1>Matterhorn<small>马特洪峰</small></h1>
+  <p>4,478 m · 瑞士 / 意大利边境 · 45.976°N 7.659°E</p>
+</div>
+
+<aside class="panel">
+  <h2>光照与天气</h2>
+  <div class="row"><label>当地时间（秋分）<output></output></label><input id="t-hour" type="range" min="6.4" max="20.3" step="0.01"></div>
+  <div class="chips" id="times">
+    <button data-h="7.45">日照金山</button><button data-h="9.5">上午</button><button data-h="13.4">正午</button><button data-h="17.2">午后</button><button data-h="19.25">落日</button>
+  </div>
+  <div class="row"><label>积雪量<output></output></label><input id="t-snow" type="range" min="0" max="1" step="0.01"></div>
+  <div class="row"><label>云量（旗云 / 积云）<output></output></label><input id="t-cloud" type="range" min="0" max="1" step="0.01"></div>
+  <div class="row"><label>大气霾度<output></output></label><input id="t-haze" type="range" min="0.2" max="3" step="0.01"></div>
+  <div class="row"><label>曝光<output></output></label><input id="t-exp" type="range" min="0.2" max="1.5" step="0.01"></div>
+  <div class="checks">
+    <label><input id="c-labels" type="checkbox" checked>地名标注</label>
+    <label><input id="c-orbit" type="checkbox">自动环绕</label>
+  </div>
+  <div class="checks"><label>画质 <select id="q-sel"><option value="auto">自动</option><option value="0.75">低</option><option value="1">中</option><option value="1.5">高</option><option value="2">超高</option></select></label></div>
+  <div class="note">拖动旋转 · 右键平移 · 滚轮缩放。地形由真实地理要素（山脊、谷地、冰川、湖泊的相对位置与海拔）驱动的 GPU 程序化生成，并非卫星 DEM。</div>
+</aside>
+
+<div id="views"></div>
+<div id="hud"></div>
+<button id="panel-toggle" title="显示/隐藏面板">☰</button>
+
+<div id="loading">
+  <div class="ld">
+    <svg viewBox="0 0 120 80" fill="none" stroke="#f2c98a" stroke-width="1.4" stroke-linejoin="round"><path d="M4 74 L40 44 L52 50 L66 12 L70 10 L76 22 L90 40 L100 38 L116 74"/><path d="M66 12 L62 40 L52 50 M70 10 L74 34 L90 40" stroke-opacity=".45"/></svg>
+    <h3>Matterhorn</h3>
+    <div id="load-bar"><i></i></div>
+    <div id="load-text">载入中…</div>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+</script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

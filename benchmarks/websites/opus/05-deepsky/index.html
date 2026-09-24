@@ -1,0 +1,722 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>周远深空日志</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --void:#05070d; --deep:#0a0f1c; --panel:rgba(10,15,28,.72); --ink:#dfe6f2; --dim:#7d8aa6; --line:rgba(223,230,242,.12); --line2:rgba(223,230,242,.26);
+  --ha:#ff4f45; --oiii:#4fd1c5; --sii:#ffb347;
+  --wide:"Michroma","Noto Sans SC",system-ui,sans-serif;
+  --serif:"Noto Serif SC","Songti SC",serif;
+  --body:"Noto Sans SC",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--void)}
+body{background:var(--void);color:var(--ink);font:300 15px/1.75 var(--body);overflow-x:hidden}
+::selection{background:var(--ha);color:#fff}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:1px solid var(--oiii);outline-offset:3px}
+[id]{scroll-margin-top:70px}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;touch-action:pan-y}
+.wrap{position:relative;z-index:2;padding-inline:clamp(16px,4vw,56px)}
+.max{max-width:1180px;margin-inline:auto}
+.mono{font:400 11.5px/1.5 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.dim{color:var(--dim)}
+
+/* HUD */
+.hud{position:fixed;z-index:30;pointer-events:none;font:400 11px/1.6 var(--mono);letter-spacing:.08em;color:var(--dim)}
+.hud b{color:var(--ink);font-weight:400}
+.hud.tl{top:calc(env(safe-area-inset-top,0px) + 16px);left:16px;pointer-events:auto}
+.hud.tr{top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;text-align:right}
+.hud.bl{bottom:calc(env(safe-area-inset-bottom,0px) + 16px);left:16px}
+.hud.br{bottom:calc(env(safe-area-inset-bottom,0px) + 16px);right:16px;text-align:right}
+.brand{font:400 13px/1 var(--wide);letter-spacing:.2em;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:10px}
+.brand i{width:14px;height:14px;border:1px solid var(--ink);border-radius:50%;position:relative}
+.brand i::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--ha)}
+.hud nav{display:flex;gap:14px;margin-top:12px}
+.hud nav a{text-decoration:none;color:var(--dim);transition:color .2s}
+.hud nav a:hover{color:var(--ink)}
+.reticle{position:fixed;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;z-index:40;pointer-events:none;opacity:0;transition:opacity .3s}
+.reticle::before{content:"";position:absolute;inset:0;border:1px solid rgba(79,209,197,.7);border-radius:50%}
+.reticle i{position:absolute;background:rgba(79,209,197,.8)}
+.reticle i:nth-child(1){left:50%;top:-8px;width:1px;height:12px}.reticle i:nth-child(2){left:50%;bottom:-8px;width:1px;height:12px}
+.reticle i:nth-child(3){top:50%;left:-8px;height:1px;width:12px}.reticle i:nth-child(4){top:50%;right:-8px;height:1px;width:12px}
+@media (pointer:coarse){.reticle{display:none}}
+@media (max-width:700px){.hud.bl,.hud.br{display:none}.hud nav{display:none}}
+
+/* hero */
+.hero{min-height:min(100svh,920px);display:flex;flex-direction:column;justify-content:flex-end;padding-block:120px 90px}
+.hero .cat{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:22px}
+.hero .cat span{border:1px solid var(--line2);padding:5px 10px;border-radius:2px;background:rgba(5,7,13,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+h1{font:900 clamp(52px,9vw,128px)/1 var(--serif);letter-spacing:.06em;margin:0;text-shadow:0 0 40px rgba(5,7,13,.8)}
+h1 small{display:block;font:400 clamp(13px,1.5vw,18px)/1.6 var(--wide);letter-spacing:.42em;color:var(--dim);margin-top:16px;text-shadow:0 0 10px var(--void),0 0 3px var(--void)}
+.hero p{max-width:34em;font-size:17px;color:#b9c3d6;margin:22px 0 30px;text-shadow:0 1px 14px var(--void)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 20px;border:1px solid var(--line2);background:rgba(5,7,13,.5);color:var(--ink);text-decoration:none;cursor:pointer;font:400 12px/1 var(--wide);letter-spacing:.16em;text-transform:uppercase;position:relative;transition:border-color .3s,background .3s,color .3s}
+.btn::before,.btn::after{content:"";position:absolute;width:6px;height:6px;border:1px solid var(--ink);transition:.3s}
+.btn::before{left:-4px;top:-4px;border-right:0;border-bottom:0}
+.btn::after{right:-4px;bottom:-4px;border-left:0;border-top:0}
+.btn:hover{border-color:var(--oiii);background:rgba(79,209,197,.08)}
+.btn:hover::before{left:-7px;top:-7px;border-color:var(--oiii)}.btn:hover::after{right:-7px;bottom:-7px;border-color:var(--oiii)}
+.btn.ha{border-color:rgba(255,79,69,.6);background:rgba(255,79,69,.12)}
+.btn.ha:hover{background:var(--ha);color:#fff;border-color:var(--ha)}
+.btn.sm{padding:9px 13px;font-size:10px}
+.scrollcue{margin-top:44px;display:flex;align-items:center;gap:12px}
+.scrollcue i{width:1px;height:40px;background:linear-gradient(var(--ink),transparent);animation:cue 2s ease-in-out infinite;transform-origin:top}
+@keyframes cue{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+/* sections */
+section{padding-block:clamp(70px,10vw,130px)}
+.sh{display:grid;grid-template-columns:160px 1fr;gap:24px;margin-bottom:40px;align-items:end}
+@media (max-width:760px){.sh{grid-template-columns:1fr}}
+.sh .idx{font:400 11px/1.6 var(--mono);color:var(--oiii);letter-spacing:.1em;border-top:1px solid var(--oiii);padding-top:8px}
+.sh h2{font:700 clamp(32px,4.6vw,56px)/1.15 var(--serif);margin:0;letter-spacing:.04em;text-wrap:balance}
+.sh h2 em{font:400 .32em/1 var(--wide);font-style:normal;letter-spacing:.3em;color:var(--dim);display:block;margin-bottom:14px}
+.panel{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+
+/* live sky widgets */
+.live{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+@media (max-width:900px){.live{grid-template-columns:1fr}}
+.live>div{background:rgba(8,12,22,.86);padding:24px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.moon{display:flex;gap:22px;align-items:center}
+.moon svg{width:110px;height:110px;flex:none;filter:drop-shadow(0 0 20px rgba(223,230,242,.25))}
+.big{font:400 clamp(28px,3vw,40px)/1.1 var(--wide);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.verdict{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:5px 10px;border:1px solid currentColor;font:400 11px/1 var(--mono);letter-spacing:.08em}
+.verdict i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin-top:12px;font:400 12px/1.5 var(--mono)}
+.kv dt{color:var(--dim)}.kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+
+/* gallery */
+.gtabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:26px;flex-wrap:wrap;align-items:flex-end}
+.gtab{background:none;border:0;padding:12px 18px;cursor:pointer;color:var(--dim);font:400 12px/1 var(--wide);letter-spacing:.14em;position:relative;transition:color .25s}
+.gtab::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--ha);transform:scaleX(0);transition:transform .35s cubic-bezier(.7,0,.2,1)}
+.gtab[aria-selected="true"]{color:var(--ink)}
+.gtab[aria-selected="true"]::after{transform:none}
+.pal{margin-left:auto;display:flex;gap:6px;padding-bottom:8px;align-items:center}
+.pal button{border:1px solid var(--line2);background:transparent;padding:6px 10px;cursor:pointer;font:400 11px/1 var(--mono);letter-spacing:.08em;display:flex;gap:6px;align-items:center;transition:.2s}
+.pal button i{display:flex;gap:2px}.pal button i b{width:6px;height:10px;display:block}
+.pal button[aria-pressed="true"]{border-color:var(--ink);background:rgba(223,230,242,.1)}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media (max-width:980px){.gal{grid-template-columns:1fr 1fr}}
+@media (max-width:620px){.gal{grid-template-columns:1fr}}
+.shot{background:none;border:0;padding:0;text-align:left;cursor:zoom-in;display:flex;flex-direction:column;gap:12px;color:inherit}
+.shot[hidden]{display:none}
+.shot .fr{position:relative;aspect-ratio:3/2;overflow:hidden;border:1px solid var(--line);max-width:100%;width:100%}
+.shot canvas{width:100%;height:100%;display:block;transition:transform 1.2s cubic-bezier(.2,.8,.2,1),filter .6s}
+.shot:hover canvas{transform:scale(1.07);filter:brightness(1.15)}
+.shot .fr::before,.shot .fr::after{content:"";position:absolute;width:16px;height:16px;border:1px solid var(--ink);z-index:2;opacity:0;transition:.4s}
+.shot .fr::before{left:10px;top:10px;border-right:0;border-bottom:0}.shot .fr::after{right:10px;bottom:10px;border-left:0;border-top:0}
+.shot:hover .fr::before,.shot:hover .fr::after{opacity:1}
+.shot:hover .fr::before{left:6px;top:6px}.shot:hover .fr::after{right:6px;bottom:6px}
+.shot .cap{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.shot h3{font:700 19px/1.3 var(--serif);margin:0}
+.shot .int{font:400 11px/1 var(--mono);color:var(--sii);white-space:nowrap}
+
+/* generator */
+.gen{display:grid;grid-template-columns:320px 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+@media (max-width:900px){.gen{grid-template-columns:1fr}}
+.gen>div{background:rgba(8,12,22,.86);padding:24px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.ctl{margin-bottom:18px}
+.ctl label{display:flex;justify-content:space-between;font:400 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;color:var(--dim)}
+.ctl output{color:var(--ink)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:14px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:linear-gradient(90deg,var(--oiii) var(--p,50%),var(--line2) var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;margin-top:-6px;border:1px solid var(--oiii);background:var(--void);transform:rotate(45deg);cursor:pointer}
+input[type=range]::-moz-range-track{height:1px;background:var(--line2)}
+input[type=range]::-moz-range-progress{height:1px;background:var(--oiii)}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border:1px solid var(--oiii);background:var(--void);border-radius:0}
+.seg{display:flex;border:1px solid var(--line2)}
+.seg button{flex:1;background:transparent;border:0;border-right:1px solid var(--line2);padding:9px 4px;cursor:pointer;font:400 11px/1 var(--mono);letter-spacing:.06em;color:var(--dim);transition:.2s}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--void)}
+.genview{display:flex;flex-direction:column;justify-content:space-between;gap:20px;min-height:320px}
+.genview .big{font-size:clamp(22px,2.4vw,30px)}
+.spec{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.spec div{background:var(--void);padding:14px}
+.spec b{display:block;font:400 22px/1.2 var(--wide);font-variant-numeric:tabular-nums}
+
+/* calculator + bortle */
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:900px){.tools{grid-template-columns:1fr}}
+.tool{padding:24px}
+.tool h3{font:700 22px/1.3 var(--serif);margin:0 0 4px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.fgrid label{display:flex;flex-direction:column;gap:6px;font:400 11px/1 var(--mono);letter-spacing:.06em;color:var(--dim);text-transform:uppercase}
+.fgrid input,.fgrid select{background:rgba(0,0,0,.35);border:1px solid var(--line2);padding:10px 12px;border-radius:0;outline:0;font:400 14px/1 var(--mono);color:var(--ink);letter-spacing:0;text-transform:none}
+.fgrid input:focus,.fgrid select:focus{border-color:var(--oiii)}
+.res{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin-top:18px;border:1px solid var(--line)}
+.res div{background:var(--void);padding:16px}
+.res b{display:block;font:400 30px/1.1 var(--wide);font-variant-numeric:tabular-nums}
+.res b.hl{color:var(--oiii)}
+.bortle canvas{width:100%;aspect-ratio:2/1;display:block;border:1px solid var(--line);margin-top:14px;max-width:100%}
+.blabel{display:flex;justify-content:space-between;gap:12px;margin-top:12px;align-items:baseline}
+.blabel b{font:400 34px/1 var(--wide)}
+
+/* table */
+.tbl{overflow-x:auto;border:1px solid var(--line);background:rgba(8,12,22,.86)}
+table{width:100%;border-collapse:collapse;min-width:640px;font-size:14px}
+th{text-align:left;font:400 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);padding:14px 16px;border-bottom:1px solid var(--line2);white-space:nowrap}
+th button{background:none;border:0;cursor:pointer;padding:0;color:inherit;font:inherit;letter-spacing:inherit;display:inline-flex;gap:6px;align-items:center}
+th button:hover,th[aria-sort] button{color:var(--ink)}
+th[aria-sort="ascending"] button::after{content:"▲";font-size:8px;color:var(--oiii)}
+th[aria-sort="descending"] button::after{content:"▼";font-size:8px;color:var(--oiii)}
+td{padding:13px 16px;border-bottom:1px solid var(--line)}
+tbody tr{transition:background .2s}
+tbody tr:hover{background:rgba(79,209,197,.06)}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.type{font:400 10px/1 var(--mono);letter-spacing:.06em;padding:4px 7px;border:1px solid currentColor}
+
+/* log timeline */
+.log{position:relative;display:grid;gap:0}
+.entry{display:grid;grid-template-columns:130px 22px 1fr;gap:18px;padding-bottom:34px;position:relative}
+@media (max-width:620px){.entry{grid-template-columns:22px 1fr}.entry time{grid-column:2}.entry .dot{grid-row:1/3;grid-column:1}}
+.entry time{font:400 12px/1.6 var(--mono);color:var(--dim);text-align:right}
+@media (max-width:620px){.entry time{text-align:left}}
+.entry .dot{position:relative}
+.entry .dot::before{content:"";position:absolute;left:10px;top:18px;bottom:-40px;width:1px;background:var(--line2)}
+.entry:last-child .dot::before{display:none}
+.entry .dot i{position:absolute;left:5px;top:6px;width:11px;height:11px;border-radius:50%;border:1px solid var(--oiii);background:var(--void)}
+.entry.clear .dot i{background:var(--oiii);box-shadow:0 0 12px var(--oiii)}
+.entry h3{font:700 18px/1.4 var(--serif);margin:0}
+.entry p{margin:4px 0 0;color:var(--dim);max-width:60ch}
+.cond{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.cond span{font:400 10px/1 var(--mono);padding:4px 7px;border:1px solid var(--line2);letter-spacing:.06em}
+
+/* stats + faq + subscribe */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
+.stats div{padding:26px 18px;border-right:1px solid var(--line)}
+.stats div:last-child{border-right:0}
+.stats b{display:block;font:400 clamp(30px,4vw,50px)/1.1 var(--wide);font-variant-numeric:tabular-nums}
+.stats b small{font-size:.4em;color:var(--dim);margin-left:4px}
+.acc{border-top:1px solid var(--line2)}
+.acc details{border-bottom:1px solid var(--line2)}
+.acc summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:60px 1fr 24px;gap:12px;padding:20px 0;align-items:baseline}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary .n{font:400 11px/1 var(--mono);color:var(--oiii)}
+.acc summary h3{margin:0;font:700 19px/1.4 var(--serif)}
+.acc summary::after{content:"";width:10px;height:10px;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);transform:rotate(45deg);transition:transform .35s;justify-self:end}
+.acc details[open] summary::after{transform:rotate(-135deg)}
+.acc .body{padding:0 0 22px 72px;color:var(--dim);max-width:70ch}
+@media (max-width:620px){.acc .body{padding-left:0}}
+.sub{display:grid;grid-template-columns:1.2fr 1fr;gap:30px;align-items:end;padding:clamp(24px,4vw,48px)}
+@media (max-width:860px){.sub{grid-template-columns:1fr}}
+.sub h2{font:700 clamp(28px,4vw,48px)/1.2 var(--serif);margin:0}
+.subf{display:flex;border-bottom:1px solid var(--ink)}
+.subf input{flex:1;min-width:0;background:transparent;border:0;outline:0;padding:12px 0;font:400 16px/1 var(--mono)}
+.subf button{background:none;border:0;cursor:pointer;font:400 12px/1 var(--wide);letter-spacing:.14em;color:var(--oiii)}
+.chk{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.chk input{position:absolute;opacity:0;pointer-events:none}
+.chk label{border:1px solid var(--line2);padding:7px 11px;cursor:pointer;font:400 11px/1 var(--mono);letter-spacing:.06em;transition:.2s}
+.chk input:checked+label{border-color:var(--oiii);color:var(--oiii);background:rgba(79,209,197,.08)}
+.chk input:focus-visible+label{outline:1px solid var(--oiii);outline-offset:2px}
+.hint{min-height:1.4em;font:400 12px/1.4 var(--mono);margin-top:8px}
+footer{position:relative;z-index:2;padding:40px clamp(16px,4vw,56px) calc(70px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font:400 11px/1.6 var(--mono);color:var(--dim);letter-spacing:.06em;border-top:1px solid var(--line);background:linear-gradient(transparent,var(--void) 40%)}
+
+/* lightbox, toast, tooltip */
+.lb{position:fixed;inset:0;z-index:90;background:rgba(3,4,8,.94);display:grid;grid-template-columns:1fr 320px;animation:fade .35s}
+@media (max-width:900px){.lb{grid-template-columns:1fr;grid-template-rows:1fr auto;overflow:auto}}
+@keyframes fade{from{opacity:0}}
+.lb .stagebox{position:relative;display:grid;place-items:center;padding:clamp(16px,4vw,50px);min-height:0}
+.lb canvas{max-width:100%;max-height:78vh;width:auto;height:auto;display:block;border:1px solid var(--line);animation:zoomin .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes zoomin{from{transform:scale(.94);opacity:0}}
+.lb aside{border-left:1px solid var(--line);padding:28px 24px;overflow:auto;background:var(--deep)}
+@media (max-width:900px){.lb aside{border-left:0;border-top:1px solid var(--line)}}
+.lb h3{font:700 26px/1.3 var(--serif);margin:6px 0 16px}
+.lb .nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border:1px solid var(--line2);background:rgba(5,7,13,.6);cursor:pointer;font-size:18px}
+.lb .nav:hover{border-color:var(--oiii);color:var(--oiii)}
+.lb .prev{left:12px}.lb .next{right:12px}
+.lb .x{position:absolute;top:14px;right:14px;z-index:3}
+.hist{display:flex;align-items:flex-end;gap:1px;height:60px;margin-top:16px;border-bottom:1px solid var(--line2)}
+.hist i{flex:1;background:var(--dim);opacity:.7}
+.toasts{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translateX(-50%);z-index:95;display:flex;flex-direction:column;gap:8px;align-items:center;width:calc(100% - 32px);pointer-events:none}
+.toast{background:rgba(10,15,28,.95);border:1px solid var(--line2);padding:11px 16px;font:400 12px/1.4 var(--mono);letter-spacing:.04em;display:flex;gap:10px;align-items:center;animation:tin .4s cubic-bezier(.2,.8,.2,1);pointer-events:auto;max-width:100%}
+.toast i{width:6px;height:6px;border-radius:50%;background:var(--oiii);box-shadow:0 0 8px var(--oiii);flex:none}
+.toast.out{animation:tout .3s forwards}
+@keyframes tin{from{opacity:0;transform:translateY(-12px)}}
+@keyframes tout{to{opacity:0;transform:translateY(-12px)}}
+[data-tip]{position:relative}
+[data-tip]::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--ink);color:var(--void);font:400 11px/1.3 var(--mono);padding:6px 9px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;text-transform:none;letter-spacing:0}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1}
+.fadeup{opacity:0;transform:translateY(24px)}
+.fadeup.on{opacity:1;transform:none;transition:opacity 1s,transform 1s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}.fadeup{opacity:1;transform:none}}
+</style>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="reticle" id="ret" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+<div class="hud tl">
+  <a class="brand" href="#top"><i></i>ZHOU YUAN</a>
+  <nav aria-label="主导航"><a href="#gallery">作品</a><a href="#generator">星系</a><a href="#tools">工具</a><a href="#log">日志</a><a href="#subscribe">订阅</a></nav>
+</div>
+<div class="hud tr" aria-live="off">
+  <div>UTC <b id="utc">--:--:--</b></div>
+  <div>LST 116.4°E <b id="lst">--:--:--</b></div>
+  <div id="scene">SCENE <b>01 / 俯视</b></div>
+</div>
+<div class="hud bl"><div>RA <b id="ra">13h 29m 52s</b></div><div>DEC <b id="dec">+47° 11′ 43″</b></div></div>
+<div class="hud br"><div>EPOCH <b>J2000.0</b></div><div>拖动旋转 · 滚动飞行</div></div>
+
+<main class="wrap" id="top">
+  <div class="hero max">
+    <div class="cat mono dim"><span>OBS. LOG 2016 — 2026</span><span>BORTLE 1 · 阿里 狮泉河</span><span>ALT 4,300 M</span></div>
+    <h1>周远<small>DEEP SKY ASTROPHOTOGRAPHY</small></h1>
+    <p>我在海拔四千米的地方等光。十年间在 312 个晴夜里，累计曝光 1,846 小时，只为了把几百万年前出发的光子收进一张图里。你身后这团星系由 7 万颗粒子实时生成——向下滚动，我们一起飞进去。</p>
+    <div class="row">
+      <a class="btn ha" href="#gallery">查看作品 ↓</a>
+      <a class="btn" href="#generator">生成一个星系</a>
+    </div>
+    <div class="scrollcue mono dim"><i></i>SCROLL TO FLY</div>
+  </div>
+
+  <section class="max" id="tonight" style="padding-top:20px">
+    <div class="sh"><span class="idx">00 / 今夜</span><h2><em>TONIGHT'S SKY</em>今晚适合拍深空吗？</h2></div>
+    <div class="live">
+      <div>
+        <div class="mono dim">月相 · 实时计算</div>
+        <div class="moon" style="margin-top:14px">
+          <svg viewBox="-50 -50 100 100" id="moonSvg" role="img" aria-label="当前月相"></svg>
+          <div><div class="big" id="illum">--%</div><div class="mono dim" id="phaseName">—</div><span class="verdict" id="verdict"><i></i>—</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="mono dim">时间与坐标</div>
+        <dl class="kv">
+          <dt>北京时间</dt><dd id="bjt">—</dd>
+          <dt>月龄</dt><dd id="age">—</dd>
+          <dt>下次新月</dt><dd id="nextNew">—</dd>
+          <dt>儒略日</dt><dd id="jd">—</dd>
+        </dl>
+      </div>
+      <div>
+        <div class="mono dim">本季推荐目标</div>
+        <dl class="kv" id="targets"></dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="max" id="gallery">
+    <div class="sh"><span class="idx">01 / 作品</span><h2><em>GALLERY</em>收进来的光</h2></div>
+    <div class="gtabs" role="tablist" aria-label="按类型筛选">
+      <button class="gtab" role="tab" aria-selected="true" data-k="all">全部</button>
+      <button class="gtab" role="tab" aria-selected="false" data-k="neb">星云</button>
+      <button class="gtab" role="tab" aria-selected="false" data-k="gal">星系</button>
+      <div class="pal" role="group" aria-label="合成色板">
+        <span class="mono dim" data-tip="窄带通道如何映射到 RGB" tabindex="0" style="margin-right:4px">色板</span>
+        <button aria-pressed="true" data-p="SHO"><i><b style="background:#ffb347"></b><b style="background:#6bd46b"></b><b style="background:#4fd1c5"></b></i>SHO</button>
+        <button aria-pressed="false" data-p="HOO"><i><b style="background:#ff4f45"></b><b style="background:#4fd1c5"></b><b style="background:#4fd1c5"></b></i>HOO</button>
+        <button aria-pressed="false" data-p="RGB"><i><b style="background:#e36b7a"></b><b style="background:#c9a7d6"></b><b style="background:#7aa6e3"></b></i>RGB</button>
+      </div>
+    </div>
+    <div class="gal" id="gal"></div>
+  </section>
+
+  <section class="max" id="generator">
+    <div class="sh"><span class="idx">02 / 生成器</span><h2><em>GALAXY GENERATOR</em>亲手造一个星系</h2></div>
+    <div class="gen">
+      <div>
+        <div class="ctl"><label for="gArms">旋臂数量<output id="oArms">4</output></label><input type="range" id="gArms" min="2" max="7" step="1" value="4"></div>
+        <div class="ctl"><label for="gTwist">缠绕度<output id="oTwist">0.9</output></label><input type="range" id="gTwist" min="0" max="2.5" step=".05" value=".9"></div>
+        <div class="ctl"><label for="gRand">弥散<output id="oRand">0.35</output></label><input type="range" id="gRand" min="0.05" max="1" step=".01" value=".35"></div>
+        <div class="ctl"><label for="gCount">粒子数<output id="oCount">70,000</output></label><input type="range" id="gCount" min="10000" max="150000" step="5000" value="70000"></div>
+        <div class="ctl"><label for="gSpin">自转速度<output id="oSpin">1.0×</output></label><input type="range" id="gSpin" min="0" max="4" step=".1" value="1"></div>
+        <div class="ctl"><label>色板</label><div class="seg" id="gPal"><button aria-pressed="false" data-p="SHO">SHO</button><button aria-pressed="false" data-p="HOO">HOO</button><button aria-pressed="true" data-p="RGB">真彩</button></div></div>
+        <div class="row"><button class="btn sm" id="gRandom">随机星系</button><button class="btn sm" id="gReset">复位</button></div>
+      </div>
+      <div class="genview">
+        <div><div class="mono dim">你正在看的是</div><div class="big" id="gName" style="margin-top:8px">NGC ZY-4 · 旋涡星系 Sbc</div><p class="dim" style="max-width:44ch" id="gDesc">参数会实时作用到背景里的星系。拖动画面可以从任意角度观察，滚动页面会改变相机轨道。</p></div>
+        <div class="spec"><div><span class="mono dim">哈勃分类</span><b id="gHub">Sbc</b></div><div><span class="mono dim">粒子</span><b id="gN">70k</b></div><div><span class="mono dim">HII 区</span><b id="gH">2.8k</b></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="max" id="tools">
+    <div class="sh"><span class="idx">03 / 工具</span><h2><em>FIELD TOOLS</em>野外用得上的两个小工具</h2></div>
+    <div class="tools">
+      <div class="tool panel">
+        <h3>最长曝光时间</h3><p class="dim" style="margin:0;font-size:14px">不用赤道仪时，星点开始拖线前能曝光多久。</p>
+        <div class="fgrid">
+          <label>焦距 mm<input id="cF" type="number" min="8" max="2000" value="24" inputmode="numeric"></label>
+          <label>光圈 f/<input id="cN" type="number" min="1" max="22" step=".1" value="1.4" inputmode="decimal"></label>
+          <label>传感器<select id="cCrop"><option value="1">全画幅 1.0×</option><option value="1.5">APS-C 1.5×</option><option value="1.6">APS-C 1.6×</option><option value="2">M4/3 2.0×</option></select></label>
+          <label style="text-transform:none">像元尺寸 µm<input id="cP" type="number" min="1" max="10" step=".01" value="5.93" inputmode="decimal"></label>
+        </div>
+        <div class="res"><div><span class="mono dim">500 法则</span><b id="r500">20.8s</b></div><div><span class="mono dim" data-tip="更适合高像素传感器" tabindex="0">NPF 法则 ⓘ</span><b class="hl" id="rNpf">9.5s</b></div></div>
+      </div>
+      <div class="tool panel bortle">
+        <h3>波特尔暗空等级</h3><p class="dim" style="margin:0;font-size:14px">拖动滑块，看看不同光污染下的天空。</p>
+        <canvas id="bCv" width="600" height="300" aria-label="模拟夜空"></canvas>
+        <input type="range" id="bR" min="1" max="9" step="1" value="1" aria-label="波特尔等级" style="margin-top:16px">
+        <div class="blabel"><b id="bN">1</b><span class="dim" id="bT" style="text-align:right">极暗天空</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="max">
+    <div class="stats" id="stats">
+      <div><b data-n="1846">0<small>h</small></b><span class="mono dim">累计曝光</span></div>
+      <div><b data-n="312">0<small>夜</small></b><span class="mono dim">晴夜</span></div>
+      <div><b data-n="87">0</b><span class="mono dim">拍过的目标</span></div>
+      <div><b data-n="41200">0<small>km</small></b><span class="mono dim">追星路程</span></div>
+    </div>
+  </section>
+
+  <section class="max" id="gear">
+    <div class="sh"><span class="idx">04 / 器材</span><h2><em>EQUIPMENT</em>器材清单</h2></div>
+    <div class="tbl"><table id="gearT"><thead><tr>
+      <th scope="col" data-k="0"><button>器材</button></th><th scope="col" data-k="1"><button>类型</button></th><th scope="col" data-k="2"><button>关键参数</button></th><th scope="col" data-k="3" style="text-align:right"><button>使用夜数</button></th><th scope="col" data-k="4" style="text-align:right"><button>购入</button></th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="max" id="log">
+    <div class="sh"><span class="idx">05 / 日志</span><h2><em>OBSERVATION LOG</em>最近的观测记录</h2></div>
+    <div class="log" id="logL"></div>
+  </section>
+
+  <section class="max">
+    <div class="sh"><span class="idx">06 / 流程</span><h2><em>WORKFLOW</em>一张图是怎么来的</h2></div>
+    <div class="acc">
+      <details open><summary><span class="n">STEP 1</span><h3>选目标与等天气</h3></summary><div class="body">看月相、看云图、看视宁度预报。一个目标往往要跨几个月、分几十个晚上拍完，所以提前规划构图与旋转角度非常重要。</div></details>
+      <details><summary><span class="n">STEP 2</span><h3>拍摄：亮场、暗场、平场、偏置</h3></summary><div class="body">每个窄带通道单张 300 秒，拍到 SNR 足够为止。同时拍 30 张暗场、平场和偏置场，用来扣掉热噪声、暗角和灰尘。</div></details>
+      <details><summary><span class="n">STEP 3</span><h3>叠加与后期</h3></summary><div class="body">PixInsight 里做校准、配准、叠加，然后去梯度、反卷积、降噪、拉伸。窄带数据最后按 SHO 或 HOO 映射成彩色——上面图库的色板切换就是在模拟这一步。</div></details>
+      <details><summary><span class="n">STEP 4</span><h3>写下这张图的故事</h3></summary><div class="body">每张作品都会配一篇日志：那晚的温度、风、狗叫声，以及它离我们有多少光年。</div></details>
+    </div>
+  </section>
+
+  <section class="max" id="subscribe">
+    <div class="sub panel">
+      <div><div class="mono" style="color:var(--oiii)">晴夜提醒</div><h2>下一个无月晴夜，<br>我会写信告诉你。</h2><p class="dim" style="margin:12px 0 0">每月最多 2 封：月相、拍摄窗口、推荐目标。</p></div>
+      <form id="subF" novalidate>
+        <div class="subf"><input id="sEmail" type="email" placeholder="your@email.com" aria-label="邮箱" autocomplete="email"><button type="submit">订阅 →</button></div>
+        <div class="chk" role="group" aria-label="关注的城市"><input type="checkbox" id="k1" checked><label for="k1">北京</label><input type="checkbox" id="k2"><label for="k2">上海</label><input type="checkbox" id="k3"><label for="k3">成都</label><input type="checkbox" id="k4"><label for="k4">拉萨</label></div>
+        <div class="hint" id="sHint"></div>
+      </form>
+    </div>
+  </section>
+</main>
+<footer><span>© 2026 周远 · 所有影像版权所有（此页图像为程序化演示）</span><span>星系：Three.js r128 · 70k 粒子 · 自定义着色器</span></footer>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.innerHTML = '<i></i><span></span>'; e.lastChild.textContent = m; $('#toasts').append(e); setTimeout(() => { e.classList.add('out'); setTimeout(() => e.remove(), 300); }, 3000); }
+const fill = el => el.style.setProperty('--p', (el.value - el.min) / (el.max - el.min) * 100 + '%');
+
+/* ================= GALAXY ================= */
+const cv = $('#sky');
+let R = null;
+try { R = new THREE.WebGLRenderer({ canvas: cv, antialias: false, powerPreference: 'high-performance' }); } catch (e) { cv.style.background = 'radial-gradient(circle at 60% 40%,#1a2140,#05070d 60%)'; }
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#05070d');
+const cam = new THREE.PerspectiveCamera(55, 1, .05, 200);
+const PALS = {
+  RGB: { core: '#ffd9a8', arm: '#7fa8ff', knot: '#ff5a78', dust: '#9fb4ff' },
+  SHO: { core: '#ffb347', arm: '#4fd1c5', knot: '#e8f27a', dust: '#6bd46b' },
+  HOO: { core: '#ff7a5c', arm: '#4fd1c5', knot: '#ff4f45', dust: '#7fe0d8' },
+};
+const P0 = { arms: 4, twist: .9, rand: .35, count: 70000, spin: 1, pal: 'RGB' };
+const P = { ...P0 };
+const gUni = { uT: { value: 0 }, uSpin: { value: 1 }, uPR: { value: 1 } };
+const gMat = new THREE.ShaderMaterial({
+  uniforms: gUni, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  vertexShader: `attribute float aR;attribute float aA;attribute float aS;attribute vec3 aC;uniform float uT;uniform float uSpin;uniform float uPR;varying vec3 vC;
+  void main(){float ang=aA+uT*uSpin*.35/(.35+aR*.35);vec3 p=vec3(cos(ang)*aR,position.y,sin(ang)*aR);
+  vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;gl_PointSize=aS*uPR*(38./-mv.z);vC=aC;}`,
+  fragmentShader: `varying vec3 vC;void main(){float d=length(gl_PointCoord-.5);if(d>.5)discard;float s=pow(1.-d*2.,2.4);gl_FragColor=vec4(vC*s,1.);}`
+});
+let galaxy = null;
+function rnd(seed) { let s = seed >>> 0; return () => ((s = Math.imul(s ^ (s >>> 15), 2246822507) + 1 | 0, s ^= s >>> 13, (s >>> 0) / 4294967296)); }
+function buildGalaxy() {
+  if (galaxy) { scene.remove(galaxy); galaxy.geometry.dispose(); }
+  const n = P.count, Rm = 6, rand = rnd(42 + P.arms * 7);
+  const pos = new Float32Array(n * 3), aR = new Float32Array(n), aA = new Float32Array(n), aS = new Float32Array(n), aC = new Float32Array(n * 3);
+  const pal = PALS[P.pal], cCore = new THREE.Color(pal.core), cArm = new THREE.Color(pal.arm), cKnot = new THREE.Color(pal.knot), cDust = new THREE.Color(pal.dust), tmp = new THREE.Color();
+  let knots = 0;
+  for (let i = 0; i < n; i++) {
+    const kind = rand();
+    let r, a, y, size, col;
+    if (kind < .09) { // bulge
+      r = Math.pow(rand(), 2.2) * 1.4; a = rand() * Math.PI * 2; y = (rand() - .5) * .9 * (1.4 - r) ; size = 1.1 + rand() * 1.2;
+      col = tmp.copy(cCore).multiplyScalar(.22 + rand() * .3);
+    } else {
+      r = .25 + Math.pow(rand(), 1.4) * Rm; const arm = (i % P.arms) / P.arms * Math.PI * 2;
+      a = arm + r * P.twist;
+      const sp = P.rand * r * .45, rx = Math.pow(rand(), 3) * (rand() < .5 ? 1 : -1) * sp * 3, rz = Math.pow(rand(), 3) * (rand() < .5 ? 1 : -1) * sp * 3;
+      const x = Math.cos(a) * r + rx, z = Math.sin(a) * r + rz; r = Math.hypot(x, z); a = Math.atan2(z, x);
+      y = (rand() - .5) * .22 * Math.pow(rand(), 2) * (1.2 - r / Rm);
+      const t = Math.min(r / Rm, 1);
+      if (rand() < .04 && t > .15) { col = tmp.copy(cKnot).multiplyScalar(.9); size = 2.2 + rand() * 1.8; knots++; }
+      else if (rand() < .12) { col = tmp.copy(cDust).multiplyScalar(.25); size = 2.2; }
+      else { col = tmp.copy(cCore).lerp(cArm, Math.min(1, t * 1.6)).multiplyScalar(.35 + rand() * .45); size = .8 + rand() * 1.1; }
+    }
+    pos[i * 3 + 1] = y; aR[i] = r; aA[i] = a; aS[i] = size; aC.set([col.r * .55, col.g * .55, col.b * .55], i * 3);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('aR', new THREE.BufferAttribute(aR, 1)); g.setAttribute('aA', new THREE.BufferAttribute(aA, 1));
+  g.setAttribute('aS', new THREE.BufferAttribute(aS, 1)); g.setAttribute('aC', new THREE.BufferAttribute(aC, 3));
+  g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 8);
+  galaxy = new THREE.Points(g, gMat); galaxy.rotation.z = .18; scene.add(galaxy);
+  // UI readouts
+  const hub = P.twist < .45 ? 'Sa' : P.twist < 1 ? 'Sbc' : P.twist < 1.6 ? 'Sc' : 'Sd';
+  $('#gHub').textContent = P.rand > .8 ? 'Irr' : hub; $('#gN').textContent = Math.round(n / 1000) + 'k'; $('#gH').textContent = (knots / 1000).toFixed(1) + 'k';
+  $('#gName').textContent = `NGC ZY-${P.arms}${Math.round(P.twist * 10)} · ${P.rand > .8 ? '不规则星系' : '旋涡星系'} ${P.rand > .8 ? 'Irr' : hub}`;
+}
+// background stars
+{
+  const n = 3500, p = new Float32Array(n * 3), c = new Float32Array(n * 3), s = new Float32Array(n), r0 = rnd(7);
+  for (let i = 0; i < n; i++) { const u = r0() * 2 - 1, th = r0() * Math.PI * 2, rr = 50 + r0() * 40, q = Math.sqrt(1 - u * u); p.set([Math.cos(th) * q * rr, u * rr, Math.sin(th) * q * rr], i * 3); const t = r0(); c.set(t < .15 ? [1, .8, .6] : t < .3 ? [.7, .8, 1] : [.9, .92, 1], i * 3); s[i] = .5 + Math.pow(r0(), 6) * 5; }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(p, 3)); g.setAttribute('aC', new THREE.BufferAttribute(c, 3)); g.setAttribute('aS', new THREE.BufferAttribute(s, 1));
+  const m = new THREE.ShaderMaterial({ uniforms: { uT: gUni.uT, uPR: gUni.uPR }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: 'attribute vec3 aC;attribute float aS;uniform float uT;uniform float uPR;varying vec3 vC;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;float tw=.75+.25*sin(uT*2.+position.x*3.1+position.y);gl_PointSize=aS*uPR*tw*1.6;vC=aC*tw;}',
+    fragmentShader: 'varying vec3 vC;void main(){float d=length(gl_PointCoord-.5);if(d>.5)discard;gl_FragColor=vec4(vC*pow(1.-d*2.,2.),1.);}' });
+  scene.add(new THREE.Points(g, m));
+}
+buildGalaxy();
+// camera path driven by scroll
+const KEYS = [
+  { p: 0, pos: [0, 7.5, 9.5], look: [-2.6, 0, .6], name: '01 / 俯视' },
+  { p: .22, pos: [8.5, 1.4, 4.5], look: [0, 0, 0], name: '02 / 侧掠' },
+  { p: .45, pos: [2.4, .45, 1.6], look: [0, 0, 0], name: '03 / 穿越旋臂' },
+  { p: .7, pos: [-3.5, 2.6, -4], look: [0, 0, 0], name: '04 / 背面' },
+  { p: 1, pos: [0, 14, .01], look: [0, 0, 0], name: '05 / 正上方' },
+];
+const vA = new THREE.Vector3(), vB = new THREE.Vector3(), lA = new THREE.Vector3(), lB = new THREE.Vector3(), camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
+let yaw = 0, pitch = 0, tYaw = 0, tPitch = 0, drag = null, sceneName = '';
+function camAt(p) {
+  const narrow = innerWidth < 760;
+  let i = 0; while (i < KEYS.length - 2 && p > KEYS[i + 1].p) i++;
+  const a = KEYS[i], b = KEYS[i + 1], k = THREE.MathUtils.smoothstep((p - a.p) / (b.p - a.p), 0, 1);
+  vA.fromArray(a.pos); vB.fromArray(b.pos); lA.fromArray(a.look); lB.fromArray(b.look);
+  camPos.lerpVectors(vA, vB, k); camLook.lerpVectors(lA, lB, k); if (narrow) { camLook.x *= .2; if (i === 0) camLook.y -= 5.2 * (1 - k); }
+  const nm = (k < .5 ? a : b).name; if (nm !== sceneName) { sceneName = nm; $('#scene').innerHTML = 'SCENE <b>' + nm + '</b>'; }
+}
+cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, yaw: tYaw, pitch: tPitch }; });
+addEventListener('pointerup', () => drag = null);
+addEventListener('pointermove', e => {
+  if (drag) { tYaw = drag.yaw + (e.clientX - drag.x) * .006; tPitch = THREE.MathUtils.clamp(drag.pitch + (e.clientY - drag.y) * .004, -.6, .6); }
+  // HUD RA/Dec around M51
+  const ra = 13 * 3600 + 29 * 60 + 52 + (e.clientX / innerWidth - .5) * 900, dec = 47 + 11 / 60 - (e.clientY / innerHeight - .5) * 2.2;
+  const h = Math.floor(ra / 3600), m = Math.floor(ra % 3600 / 60), s = Math.floor(ra % 60);
+  $('#ra').textContent = `${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`;
+  const dd = Math.floor(dec), dm = Math.floor((dec - dd) * 60), ds = Math.floor(((dec - dd) * 60 - dm) * 60);
+  $('#dec').textContent = `+${dd}° ${String(dm).padStart(2, '0')}′ ${String(ds).padStart(2, '0')}″`;
+});
+function resize() { if (!R) return; const pr = Math.min(devicePixelRatio, 1.75); R.setPixelRatio(pr); R.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.fov = innerWidth < 700 ? 70 : 55; cam.updateProjectionMatrix(); gUni.uPR.value = pr * Math.min(1, innerHeight / 900 + .2); }
+addEventListener('resize', resize); resize();
+let last = performance.now(), sp = 0;
+function loop(now) {
+  const dt = Math.min((now - last) / 1000, .05); last = now;
+  if (R) {
+    gUni.uT.value += dt * (reduce ? .15 : 1); gUni.uSpin.value = P.spin;
+    const max = document.documentElement.scrollHeight - innerHeight; const target = max > 0 ? scrollY / max : 0;
+    sp += (target - sp) * .06; camAt(sp);
+    yaw += (tYaw - yaw) * .08; pitch += (tPitch - pitch) * .08;
+    const off = camPos.clone().sub(camLook); off.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw + (drag ? 0 : Math.sin(gUni.uT.value * .05) * .05)); off.y += pitch * off.length();
+    cam.position.copy(camLook).add(off); cam.lookAt(camLook);
+    R.render(scene, cam);
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// generator controls
+const G = { arms: $('#gArms'), twist: $('#gTwist'), rand: $('#gRand'), count: $('#gCount'), spin: $('#gSpin') };
+let rebuildT = 0;
+const syncOut = () => { $('#oArms').textContent = P.arms; $('#oTwist').textContent = P.twist.toFixed(2); $('#oRand').textContent = P.rand.toFixed(2); $('#oCount').textContent = P.count.toLocaleString(); $('#oSpin').textContent = P.spin.toFixed(1) + '×'; Object.values(G).forEach(fill); };
+Object.entries(G).forEach(([k, el]) => el.oninput = () => { P[k] = +el.value; syncOut(); if (k !== 'spin') { clearTimeout(rebuildT); rebuildT = setTimeout(buildGalaxy, 60); } });
+$$('#gPal button').forEach(b => b.onclick = () => { $$('#gPal button').forEach(x => x.setAttribute('aria-pressed', x === b)); P.pal = b.dataset.p; buildGalaxy(); });
+const setAll = v => { Object.assign(P, v); Object.entries(G).forEach(([k, el]) => el.value = P[k]); $$('#gPal button').forEach(x => x.setAttribute('aria-pressed', x.dataset.p === P.pal)); syncOut(); buildGalaxy(); };
+$('#gRandom').onclick = () => { setAll({ arms: 2 + (Math.random() * 6 | 0), twist: +(Math.random() * 2.3 + .1).toFixed(2), rand: +(Math.random() * .7 + .1).toFixed(2), pal: ['RGB', 'SHO', 'HOO'][Math.random() * 3 | 0] }); toast('新星系已生成：' + $('#gName').textContent); };
+$('#gReset').onclick = () => { setAll({ ...P0 }); tYaw = tPitch = 0; };
+syncOut();
+
+/* ================= NEBULA RENDERER (procedural) ================= */
+function hash(x, y, s) { let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 982451653) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+function vnoise(x, y, s) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = hash(xi, yi, s), b = hash(xi + 1, yi, s), c = hash(xi, yi + 1, s), d = hash(xi + 1, yi + 1, s); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; }
+function fbm(x, y, s, o = 5) { let v = 0, a = .5; for (let i = 0; i < o; i++) { v += a * vnoise(x, y, s + i * 17); x *= 2.03; y *= 2.03; a *= .5; } return v; }
+const MAP = {
+  SHO: (h, o, s) => [s * .9 + h * .6, h * .72 + o * .22 + s * .15, o * 1.05],
+  HOO: (h, o) => [h * 1.15, o * .9 + h * .12, o * 1.05],
+  RGB: (h, o) => [h * 1.0 + o * .1, h * .32 + o * .45, h * .42 + o * .8],
+};
+let PAL = 'SHO';
+function renderNebula(cv, t, W, H) {
+  cv.width = W; cv.height = H; const ctx = cv.getContext('2d'), img = ctx.createImageData(W, H), d = img.data, sd = t.seed, map = MAP[PAL];
+  const hist = new Array(32).fill(0);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const nx = x / W * 3, ny = y / H * 2, cx = x / W - .5, cy = (y / H - .5) * H / W; const r = Math.hypot(cx, cy);
+    const warp = fbm(nx * 1.2, ny * 1.2, sd + 3, 3);
+    let ha = fbm(nx + warp * 1.4, ny + warp, sd, 5), oi = fbm(nx * 1.3 - warp, ny * 1.3 + 2, sd + 9, 5), si = fbm(nx * .9 + 4, ny * .9 - warp, sd + 21, 4);
+    let H1, O1, S1;
+    if (t.shape === 'cloud') {
+      const m = Math.pow(Math.max(0, 1 - r * 1.6), 1.1), dust = Math.min(1, Math.max(0, (fbm(nx * 2.2, ny * 2.2, sd + 40, 4) - .34) * 3));
+      H1 = Math.max(0, ha - .34) * m * 4.2 * dust; O1 = Math.max(0, oi - .4) * m * 3.2 * dust + Math.max(0, .1 - r) * 5; S1 = Math.max(0, si - .42) * m * 3 * dust;
+    } else if (t.shape === 'ring') {
+      const rr = r / .22, rim = Math.exp(-Math.pow((rr - 1.12) / .2, 2)), inner = Math.exp(-Math.pow(rr / .95, 4)), halo = Math.exp(-Math.pow((rr - 1.5) / .5, 2)) * .12;
+      H1 = (rim * 1.4 + halo) * Math.pow(ha * 1.5, 2); O1 = inner * Math.pow(oi * 1.3, 2) * .8 + rim * .12; S1 = rim * .7 * Math.pow(si * 1.4, 2);
+    } else if (t.shape === 'pillar') {
+      const top = -.12 + (warp - .5) * .05, cxp = .04 * Math.sin(cy * 6 + sd) - .03, w = .055 + Math.max(0, cy - top) * .16 + (warp - .5) * .03;
+      const dx = Math.abs(cx - cxp), dist = cy >= top ? dx - w : Math.hypot(dx, top - cy) - w;
+      const bg = .55;
+      H1 = Math.max(0, ha - .34) * 2.4 * bg; O1 = Math.max(0, oi - .38) * 2.2 * bg * (1 - Math.max(0, cy + .3)); S1 = Math.max(0, si - .4) * 1.8 * bg;
+      if (dist < 0) { const k = .1 + Math.max(0, .02 + dist) * 20 * .3; H1 *= k; O1 *= k; S1 *= k; }
+      else if (dist < .022) { const k = Math.pow(1 - dist / .022, 2) * ha; H1 += k * 1.2; S1 += k * .8 * si; }
+    } else if (t.shape === 'galaxy') {
+      const rx = cx * Math.cos(.5) - cy * Math.sin(.5), ry = (cx * Math.sin(.5) + cy * Math.cos(.5)) * 2.1, rr = Math.hypot(rx, ry), th = Math.atan2(ry, rx);
+      const arms = .5 + .5 * Math.cos(2 * th - Math.log(rr + .02) * 5.5), m = Math.exp(-rr * 5) * (.6 + arms * .9) + Math.exp(-rr * 28) * 2.2;
+      H1 = (ha * .4 + arms * .2 * Math.exp(-rr * 4)) * m; O1 = (oi * .3 + Math.exp(-rr * 6) * .9) * m; S1 = Math.exp(-rr * 12) * 1.4 * m;
+    } else {
+      const ridge = 1 - Math.abs(fbm(nx * 1.6 + warp * 2, ny * 1.6, sd + 5, 5) * 2 - 1), f = Math.pow(ridge, 7), m = .1 + f * 2.2 * Math.max(0, 1 - Math.abs(cx + cy * .6) * 2);
+      H1 = Math.max(0, ha - .3) * m * 2.2; O1 = Math.max(0, oi - .32) * m * 2.7; S1 = Math.max(0, si - .36) * m * 1.6;
+    }
+    let [R, Gc, B] = map(H1, O1, S1);
+    const st = hash(x, y, sd + 99); if (st > .9965) { const b = (st - .9965) / .0035; R += b * 1.3; Gc += b * 1.3; B += b * 1.4; }
+    const i = (y * W + x) * 4; d[i] = Math.min(255, Math.pow(R, .8) * 255); d[i + 1] = Math.min(255, Math.pow(Gc, .8) * 255); d[i + 2] = Math.min(255, Math.pow(B, .8) * 255); d[i + 3] = 255;
+    hist[Math.min(31, (d[i] + d[i + 1] + d[i + 2]) / 3 / 8 | 0)]++;
+  }
+  ctx.putImageData(img, 0, 0);
+  // bright stars with diffraction glow
+  const r0 = rnd(sd * 13); ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 9; i++) { const x = r0() * W, y = r0() * H, s = 1 + r0() * 2.2 * W / 360; const g = ctx.createRadialGradient(x, y, 0, x, y, s * 5); g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(.25, 'rgba(200,220,255,.35)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(x - s * 5, y - s * 5, s * 10, s * 10); }
+  ctx.globalCompositeOperation = 'source-over';
+  return hist;
+}
+const TGT = [
+  { n: 'M42 猎户座大星云', c: 'NGC 1976', k: 'neb', shape: 'cloud', seed: 11, h: 6.5, f: 'Hα · OIII · SII', d: '2025-12-18', loc: '西藏 阿里', dist: '1,344 光年', note: '猎户座腰带下的剑。冬夜最亮的星云，也是我拍的第一个目标。' },
+  { n: '北美洲星云', c: 'NGC 7000', k: 'neb', shape: 'cloud', seed: 23, h: 12, f: 'Hα · OIII · SII', d: '2025-08-02', loc: '青海 冷湖', dist: '2,590 光年', note: '天鹅座里的「北美大陆」，墨西哥湾的位置是一道暗尘带。' },
+  { n: 'M57 指环星云', c: 'NGC 6720', k: 'neb', shape: 'ring', seed: 37, h: 4, f: 'Hα · OIII', d: '2025-06-21', loc: '云南 丽江', dist: '2,570 光年', note: '一颗类太阳恒星临终吐出的气壳。50 亿年后太阳也会这样。' },
+  { n: '象鼻星云', c: 'IC 1396A', k: 'neb', shape: 'pillar', seed: 51, h: 18, f: 'Hα · OIII · SII', d: '2025-09-14', loc: '西藏 阿里', dist: '2,400 光年', note: '暗柱里正在形成新的恒星。18 小时里有 3 小时被风吹糊了。' },
+  { n: 'M51 涡状星系', c: 'NGC 5194', k: 'gal', shape: 'galaxy', seed: 67, h: 22, f: 'L · R · G · B · Hα', d: '2026-04-09', loc: '新疆 喀拉峻', dist: '2,300 万光年', note: '右下角的伴星系 NGC 5195 正在被它拉扯。页面右上角的坐标就是它的位置。' },
+  { n: '面纱星云', c: 'NGC 6960', k: 'neb', shape: 'veil', seed: 83, h: 9, f: 'Hα · OIII', d: '2025-07-28', loc: '青海 冷湖', dist: '2,400 光年', note: '一万年前的超新星遗迹，像被风吹散的丝巾。' },
+];
+const gal = $('#gal');
+TGT.forEach((t, i) => {
+  const b = document.createElement('button'); b.className = 'shot'; b.dataset.k = t.k; b.setAttribute('aria-label', `${t.n}，查看大图`);
+  b.innerHTML = `<div class="fr"><canvas></canvas></div><div class="cap"><h3>${t.n}</h3><span class="int">${t.h}h</span></div><div class="mono dim">${t.c} · ${t.f}</div>`;
+  b.onclick = () => openLB(i); gal.append(b);
+});
+function paintGallery() { $$('.shot canvas').forEach((c, i) => renderNebula(c, TGT[i], 300, 200)); }
+paintGallery();
+$$('.pal button').forEach(b => b.onclick = () => { PAL = b.dataset.p; $$('.pal button').forEach(x => x.setAttribute('aria-pressed', x === b)); paintGallery(); toast(`色板切换为 ${PAL}：${{ SHO: 'SII→红 Hα→绿 OIII→蓝', HOO: 'Hα→红 OIII→绿蓝', RGB: '模拟真彩' }[PAL]}`); });
+$$('.gtab').forEach(b => b.onclick = () => { $$('.gtab').forEach(x => x.setAttribute('aria-selected', x === b)); $$('.shot').forEach(s => s.hidden = !(b.dataset.k === 'all' || s.dataset.k === b.dataset.k)); });
+
+/* lightbox */
+let lbI = 0, lbEl = null;
+function openLB(i) {
+  lbI = i; const prev = document.activeElement;
+  lbEl = document.createElement('div'); lbEl.className = 'lb'; lbEl.setAttribute('role', 'dialog'); lbEl.setAttribute('aria-modal', 'true');
+  lbEl.innerHTML = `<div class="stagebox"><canvas></canvas><button class="nav prev" aria-label="上一张">←</button><button class="nav next" aria-label="下一张">→</button></div><aside><button class="btn sm x" aria-label="关闭">ESC ✕</button><div class="mono" style="color:var(--oiii)" id="lbc"></div><h3 id="lbn"></h3><p class="dim" id="lbnote" style="margin:0 0 16px"></p><dl class="kv" id="lbkv"></dl><div class="mono dim" style="margin-top:20px">亮度直方图</div><div class="hist" id="lbh"></div></aside>`;
+  document.body.append(lbEl); document.body.style.overflow = 'hidden';
+  const close = () => { lbEl.remove(); lbEl = null; document.body.style.overflow = ''; removeEventListener('keydown', key); prev && prev.focus(); };
+  const key = e => { if (e.key === 'Escape') close(); if (e.key === 'ArrowRight') show(lbI + 1); if (e.key === 'ArrowLeft') show(lbI - 1); };
+  addEventListener('keydown', key); $('.x', lbEl).onclick = close; $('.prev', lbEl).onclick = () => show(lbI - 1); $('.next', lbEl).onclick = () => show(lbI + 1);
+  lbEl.addEventListener('click', e => { if (e.target === lbEl || e.target.classList.contains('stagebox')) close(); });
+  show(i); $('.x', lbEl).focus();
+}
+function show(i) {
+  lbI = (i + TGT.length) % TGT.length; const t = TGT[lbI], c = $('canvas', lbEl);
+  const hist = renderNebula(c, t, 720, 480); c.style.animation = 'none'; c.offsetWidth; c.style.animation = '';
+  $('#lbc').textContent = `${t.c} · ${String(lbI + 1).padStart(2, '0')}/${TGT.length}`; $('#lbn').textContent = t.n; $('#lbnote').textContent = t.note;
+  $('#lbkv').innerHTML = [['累计曝光', t.h + ' h'], ['滤镜', t.f], ['色板', PAL], ['拍摄日期', t.d], ['地点', t.loc], ['距离', t.dist], ['单张', '300 s × ' + Math.round(t.h * 12)]].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+  const mx = Math.max(...hist.map(v => Math.log(v + 1))); $('#lbh').innerHTML = hist.map(v => `<i style="height:${Math.log(v + 1) / mx * 100}%"></i>`).join('');
+}
+
+/* ================= TONIGHT: moon + LST ================= */
+const SYN = 29.530588853, NEW0 = Date.UTC(2000, 0, 6, 18, 14) / 864e5;
+function moonState(now) { const days = now / 864e5; const age = ((days - NEW0) % SYN + SYN) % SYN; const illum = (1 - Math.cos(age / SYN * 2 * Math.PI)) / 2; return { age, illum }; }
+function phaseName(a) { const f = a / SYN; return f < .03 || f > .97 ? '新月' : f < .22 ? '蛾眉月' : f < .28 ? '上弦月' : f < .47 ? '盈凸月' : f < .53 ? '满月' : f < .72 ? '亏凸月' : f < .78 ? '下弦月' : '残月'; }
+function drawMoon(age) {
+  const f = age / SYN, k = Math.cos(f * 2 * Math.PI), waxing = f < .5, r = 42;
+  // lit shape: semicircle + ellipse term
+  const sweep = waxing ? 1 : 0, ex = Math.abs(k) * r;
+  const d = `M0 ${-r} A${r} ${r} 0 0 ${sweep} 0 ${r} A${ex} ${r} 0 0 ${k > 0 ? (waxing ? 0 : 1) : (waxing ? 1 : 0)} 0 ${-r}Z`;
+  $('#moonSvg').innerHTML = `<defs><radialGradient id="mg" cx="40%" cy="35%"><stop offset="0" stop-color="#f4f1e8"/><stop offset="1" stop-color="#b8b4a8"/></radialGradient></defs><circle r="${r}" fill="#141a2b" stroke="rgba(223,230,242,.2)"/><path d="${d}" fill="url(#mg)"/>${[[-14, -10, 7], [12, 8, 5], [-4, 18, 4], [16, -16, 3]].map(([x, y, s]) => `<circle cx="${x}" cy="${y}" r="${s}" fill="rgba(0,0,0,.08)"/>`).join('')}`;
+}
+function tick() {
+  const now = Date.now(), d = new Date(now);
+  $('#utc').textContent = d.toISOString().slice(11, 19);
+  const jd = now / 864e5 + 2440587.5, T = (jd - 2451545) / 36525;
+  let gmst = 280.46061837 + 360.98564736629 * (jd - 2451545) + .000387933 * T * T; const lst = (((gmst + 116.4) % 360) + 360) % 360 / 15;
+  const lh = Math.floor(lst), lm = Math.floor((lst - lh) * 60), ls = Math.floor(((lst - lh) * 60 - lm) * 60);
+  $('#lst').textContent = [lh, lm, ls].map(v => String(v).padStart(2, '0')).join(':');
+  $('#bjt').textContent = d.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  $('#jd').textContent = jd.toFixed(4);
+}
+{
+  const { age, illum } = moonState(Date.now()); drawMoon(age);
+  $('#illum').textContent = Math.round(illum * 100) + '%'; $('#phaseName').textContent = phaseName(age) + ' · 照亮比例';
+  $('#age').textContent = age.toFixed(1) + ' 天';
+  const nn = new Date(Date.now() + (SYN - age) * 864e5); $('#nextNew').textContent = nn.toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai', month: 'long', day: 'numeric' });
+  const v = $('#verdict'); if (illum < .3) { v.style.color = 'var(--oiii)'; v.lastChild.textContent = '适合拍深空'; } else if (illum < .65) { v.style.color = 'var(--sii)'; v.lastChild.textContent = '可拍窄带'; } else { v.style.color = 'var(--ha)'; v.lastChild.textContent = '月光太亮，拍月球吧'; }
+  const m = new Date().getMonth(); const season = [[0, 1, 11], [2, 3, 4], [5, 6, 7], [8, 9, 10]].findIndex(s => s.includes(m));
+  const REC = [[['M42', '猎户座'], ['M45', '昴星团'], ['NGC 2237', '玫瑰星云']], [['M51', '猎犬座'], ['M81/82', '大熊座'], ['M104', '草帽星系']], [['M8', '礁湖星云'], ['M16', '鹰状星云'], ['NGC 7000', '北美洲星云']], [['M31', '仙女座星系'], ['IC 1396', '象鼻星云'], ['NGC 6960', '面纱星云']]][season];
+  $('#targets').innerHTML = REC.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+}
+tick(); setInterval(tick, 1000);
+
+/* ================= TOOLS ================= */
+function calc() {
+  const f = +$('#cF').value || 24, N = +$('#cN').value || 1.4, c = +$('#cCrop').value, p = +$('#cP').value || 5.93;
+  const t500 = 500 / (f * c), npf = (35 * N + 30 * p) / (f * c);
+  $('#r500').textContent = t500.toFixed(1) + 's'; $('#rNpf').textContent = npf.toFixed(1) + 's';
+}
+['cF', 'cN', 'cCrop', 'cP'].forEach(id => $('#' + id).addEventListener('input', calc)); calc();
+const BT = ['', '极暗天空：黄道光、对日照清晰可见', '典型真暗空：银河在地面投下影子', '乡村：天顶银河结构依然丰富', '乡村/郊区过渡：地平线出现光穹', '郊区：银河只剩天顶附近一缕', '亮郊区：肉眼几乎看不到银河', '郊区/城市过渡：天空泛灰白', '城市：只能看到亮星与行星', '市中心：只剩月亮和少数亮星'];
+const bcv = $('#bCv'), bx = bcv.getContext('2d'), br = rnd(99), STARS = [...Array(1400)].map(() => [br(), br(), Math.pow(br(), 4)]);
+function drawBortle(b) {
+  const W = bcv.width, H = bcv.height, glow = (b - 1) / 8;
+  const g = bx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, `rgb(${5 + glow * 40},${7 + glow * 38},${16 + glow * 40})`); g.addColorStop(1, `rgb(${10 + glow * 150},${12 + glow * 110},${24 + glow * 60})`);
+  bx.fillStyle = g; bx.fillRect(0, 0, W, H);
+  if (b <= 5) { bx.save(); bx.translate(W * .55, H * .5); bx.rotate(-.5); const mw = bx.createLinearGradient(0, -60, 0, 60); const a = (1 - (b - 1) / 5) * .35; mw.addColorStop(0, 'rgba(0,0,0,0)'); mw.addColorStop(.5, `rgba(210,200,190,${a})`); mw.addColorStop(1, 'rgba(0,0,0,0)'); bx.fillStyle = mw; bx.fillRect(-W, -60, W * 2, 120); bx.restore(); }
+  const lim = 1 - Math.pow(glow, .5) * .985;
+  STARS.forEach(([x, y, m]) => { if (m < 1 - lim) return; const a = Math.min(1, (m - (1 - lim)) * 4 + .2); bx.fillStyle = `rgba(235,240,255,${a})`; const s = m > .5 ? 1.8 : 1; bx.fillRect(x * W, y * H * .92, s, s); });
+  bx.fillStyle = '#05070d'; bx.beginPath(); bx.moveTo(0, H); for (let x = 0; x <= W; x += 10) bx.lineTo(x, H - 18 - Math.sin(x * .02) * 8 - Math.sin(x * .07) * 4); bx.lineTo(W, H); bx.fill();
+  if (b >= 7) { for (let i = 0; i < 18; i++) { bx.fillStyle = `rgba(255,${190 + i * 2},120,.9)`; bx.fillRect(20 + i * 33, H - 12 - (i % 3) * 3, 2, 2); } }
+  $('#bN').textContent = b; $('#bT').textContent = BT[b];
+}
+const bR = $('#bR'); bR.oninput = () => { fill(bR); drawBortle(+bR.value); }; fill(bR); drawBortle(1);
+
+/* ================= GEAR TABLE ================= */
+const GEAR = [['Takahashi FSQ-106EDX4', '望远镜', '106mm f/5', 184, 2021], ['ZWO ASI2600MM Pro', '相机', 'APS-C 3.76µm 冷冻', 201, 2022], ['10Micron GM1000 HPS', '赤道仪', '绝对编码器', 263, 2020], ['Chroma Hα 3nm', '滤镜', '3nm 窄带', 158, 2022], ['Chroma OIII 3nm', '滤镜', '3nm 窄带', 142, 2022], ['Sony A7S III', '相机', '全画幅 8.4µm', 96, 2021], ['Sigma 14mm f/1.8', '镜头', '星野广角', 88, 2019], ['Pegasus UPBv2', '配件', '供电/除露', 240, 2021]];
+const TC = { 望远镜: 'var(--oiii)', 相机: 'var(--sii)', 赤道仪: 'var(--ink)', 滤镜: 'var(--ha)', 镜头: 'var(--sii)', 配件: 'var(--dim)' };
+let sortK = 3, sortD = -1;
+function renderGear() {
+  const rows = [...GEAR].sort((a, b) => (typeof a[sortK] === 'number' ? a[sortK] - b[sortK] : a[sortK].localeCompare(b[sortK], 'zh')) * sortD);
+  $('#gearT tbody').innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td><span class="type" style="color:${TC[r[1]]}">${r[1]}</span></td><td class="dim">${r[2]}</td><td class="n">${r[3]}</td><td class="n dim">${r[4]}</td></tr>`).join('');
+  $$('#gearT th').forEach(th => { if (+th.dataset.k === sortK) th.setAttribute('aria-sort', sortD > 0 ? 'ascending' : 'descending'); else th.removeAttribute('aria-sort'); });
+}
+$$('#gearT th button').forEach(b => b.onclick = () => { const k = +b.parentElement.dataset.k; sortD = k === sortK ? -sortD : (k >= 3 ? -1 : 1); sortK = k; renderGear(); });
+renderGear();
+
+/* ================= LOG ================= */
+const LOG = [['2026-09-14', 'IC 1805 心脏星云 · 第 3 夜', '湿度 22%，视宁度 1.8″。凌晨 3 点风停了，补拍了 40 张 OIII。', ['晴', '无月', '-4°C', 'SQM 21.9'], 1], ['2026-09-02', '云层过境，只拍了平场', '在车里等了 5 个小时，最后拍了一组平场就收工。这也是观测的一部分。', ['多云', '月龄 10', '6°C'], 0], ['2026-08-21', 'M31 仙女座星系 · 拼接 4 格', '第一次尝试 2×2 拼接，每格 4 小时。仙女座终于放得下整个画面了。', ['晴', '无月', '2°C', 'SQM 21.7'], 1], ['2026-08-05', '英仙座流星雨', '不拍深空的一晚，架了两台相机拍流星。一共捕捉到 63 颗，最亮的一颗有 -4 等。', ['晴', '月龄 1', '8°C', 'ZHR 110'], 1]];
+$('#logL').innerHTML = LOG.map(l => `<div class="entry ${l[4] ? 'clear' : ''}"><time>${l[0]}</time><span class="dot"><i></i></span><div><h3>${l[1]}</h3><p>${l[2]}</p><div class="cond">${l[3].map(c => `<span>${c}</span>`).join('')}</div></div></div>`).join('');
+
+/* ================= stats, subscribe, reveal, reticle ================= */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return; io.unobserve(e.target); const el = e.target;
+  if (el.id === 'stats') $$('b[data-n]', el).forEach(b => { const to = +b.dataset.n, t0 = performance.now(), tn = b.firstChild; const st = n => { const k = Math.min((n - t0) / 1800, 1); tn.textContent = Math.round(to * (1 - Math.pow(1 - k, 4))).toLocaleString(); if (k < 1) requestAnimationFrame(st); }; requestAnimationFrame(st); });
+  if (el.classList.contains('fadeup')) el.classList.add('on');
+}), { threshold: .2 });
+io.observe($('#stats'));
+$$('.sh, .live, .shot, .gen, .tool, .tbl, .entry, .acc, .sub').forEach((el, i) => { if (!reduce && el.getBoundingClientRect().top > innerHeight) { el.classList.add('fadeup'); el.style.transitionDelay = (i % 3) * 90 + 'ms'; io.observe(el); } });
+$('#subF').onsubmit = e => {
+  e.preventDefault(); const v = $('#sEmail').value.trim(), h = $('#sHint');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { h.style.color = 'var(--ha)'; h.textContent = '邮箱格式不正确，例如 name@example.com'; return; }
+  const cities = $$('.chk input:checked').map(c => c.nextElementSibling.textContent);
+  if (!cities.length) { h.style.color = 'var(--ha)'; h.textContent = '至少选择一个城市'; return; }
+  h.style.color = 'var(--oiii)'; h.textContent = `演示页面：未实际订阅（${cities.join('、')}）`; toast('已记录，晴夜见'); e.target.reset(); $('#k1').checked = true;
+};
+const ret = $('#ret'); let rx = 0, ry = 0, tx = 0, ty = 0;
+addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; ret.style.opacity = e.target === cv ? 1 : .35; }, { passive: true });
+(function rl() { rx += (tx - rx) * .2; ry += (ty - ry) * .2; ret.style.transform = `translate(${rx}px,${ry}px)`; requestAnimationFrame(rl); })();
+})();
+</script>
