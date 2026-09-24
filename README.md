@@ -12,7 +12,7 @@ GitHub 文件页展示源代码，不会直接运行 HTML。下载本仓库 ZIP 
 python3 -m http.server 8080 --bind 127.0.0.1
 ```
 
-Windows 可用 `py -m http.server 8080 --bind 127.0.0.1`。然后打开 **http://localhost:8080/**，从目录选择作品。不需要安装 Node.js 或重新构建即可浏览已归档的版本。
+Windows 可用 `py -m http.server 8080 --bind 127.0.0.1`。然后打开 [http://localhost:8080/](http://localhost:8080/)，从目录选择作品。不需要安装 Node.js 或重新构建即可浏览已归档的版本。
 
 桌面 Chrome / Edge 等支持 WebGL 的浏览器更适合 3D 场景。部分作品使用 Google Fonts，Claude 网站还使用在线 Three.js CDN，需要联网。广告视频是已渲染 MP4，不需要运行渲染器。
 
